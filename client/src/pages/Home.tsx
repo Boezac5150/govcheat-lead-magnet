@@ -9,6 +9,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { motion, useInView } from "framer-motion";
+import { trpc } from "@/lib/trpc";
 import {
   Shield,
   Target,
@@ -110,18 +111,26 @@ function ContractCard({
 export default function Home() {
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+
+  const subscribeMutation = trpc.subscriber.subscribe.useMutation({
+    onSuccess: () => {
+      setSubmitted(true);
+      setErrorMsg("");
+    },
+    onError: (err) => {
+      setErrorMsg(err.message || "Something went wrong. Please try again.");
+    },
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
-    setIsSubmitting(true);
-    // Simulate submission
-    setTimeout(() => {
-      setSubmitted(true);
-      setIsSubmitting(false);
-    }, 1200);
+    setErrorMsg("");
+    subscribeMutation.mutate({ email, source: "cheatsheet" });
   };
+
+  const isSubmitting = subscribeMutation.isPending;
 
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
@@ -395,30 +404,35 @@ export default function Home() {
                 </p>
 
                 {!submitted ? (
-                  <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 max-w-lg mx-auto">
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="Enter your best email..."
-                      required
-                      className="flex-1 bg-[oklch(0.07_0.01_250)] border border-[oklch(0.25_0.02_250)] px-4 py-3 text-white font-mono text-sm placeholder:text-[oklch(0.4_0.01_250)] focus:border-[var(--color-govgreen)] focus:outline-none focus:ring-1 focus:ring-[var(--color-govgreen)] transition-all"
-                    />
-                    <button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className="bg-[var(--color-govgreen)] text-black font-display font-bold px-6 py-3 text-sm hover:brightness-110 transition-all animate-pulse-glow disabled:opacity-50 flex items-center justify-center gap-2 shrink-0"
-                    >
-                      {isSubmitting ? (
-                        <span className="font-mono text-xs">PROCESSING...</span>
-                      ) : (
-                        <>
-                          <Download size={16} />
-                          <span>SEND MY CHEAT SHEET</span>
-                        </>
-                      )}
-                    </button>
-                  </form>
+                  <>
+                    <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 max-w-lg mx-auto">
+                      <input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="Enter your best email..."
+                        required
+                        className="flex-1 bg-[oklch(0.07_0.01_250)] border border-[oklch(0.25_0.02_250)] px-4 py-3 text-white font-mono text-sm placeholder:text-[oklch(0.4_0.01_250)] focus:border-[var(--color-govgreen)] focus:outline-none focus:ring-1 focus:ring-[var(--color-govgreen)] transition-all"
+                      />
+                      <button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="bg-[var(--color-govgreen)] text-black font-display font-bold px-6 py-3 text-sm hover:brightness-110 transition-all animate-pulse-glow disabled:opacity-50 flex items-center justify-center gap-2 shrink-0"
+                      >
+                        {isSubmitting ? (
+                          <span className="font-mono text-xs">PROCESSING...</span>
+                        ) : (
+                          <>
+                            <Download size={16} />
+                            <span>SEND MY CHEAT SHEET</span>
+                          </>
+                        )}
+                      </button>
+                    </form>
+                    {errorMsg && (
+                      <p className="mt-3 font-mono text-xs text-[oklch(0.65_0.25_25)]">{errorMsg}</p>
+                    )}
+                  </>
                 ) : (
                   <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
