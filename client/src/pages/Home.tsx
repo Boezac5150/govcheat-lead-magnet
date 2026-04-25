@@ -10,6 +10,7 @@ import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { motion, useInView } from "framer-motion";
 import { trpc } from "@/lib/trpc";
+import { useLocation } from "wouter";
 import {
   Shield,
   Target,
@@ -112,11 +113,16 @@ export default function Home() {
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const [, setLocation] = useLocation();
 
   const subscribeMutation = trpc.subscriber.subscribe.useMutation({
     onSuccess: () => {
       setSubmitted(true);
       setErrorMsg("");
+      // Redirect to thank-you / upsell page after short delay
+      setTimeout(() => {
+        setLocation("/thank-you");
+      }, 1500);
     },
     onError: (err) => {
       setErrorMsg(err.message || "Something went wrong. Please try again.");

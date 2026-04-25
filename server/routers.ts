@@ -1,12 +1,12 @@
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
-import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
+import { publicProcedure, protectedProcedure, adminProcedure, router } from "./_core/trpc";
 import { insertSubscriber, getSubscriberCount, getAllSubscribers } from "./db";
+import { notifyOwner } from "./_core/notification";
 import { z } from "zod";
 
 export const appRouter = router({
-  // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
   system: systemRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
@@ -30,6 +30,17 @@ export const appRouter = router({
       )
       .mutation(async ({ input }) => {
         const result = await insertSubscriber(input.email, input.source);
+
+        // Notify owner on new subscriber (fire-and-forget)
+        if (!result.alreadyExists) {
+          notifyOwner({
+            title: `New Subscriber: ${input.email}`,
+            content: `A new lead just signed up for the GovCon Cheat Sheet.\n\nEmail: ${input.email}\nSource: ${input.source}\nTime: ${new Date().toISOString()}`,
+          }).catch(() => {
+            // Notification failure is non-critical
+          });
+        }
+
         return {
           success: result.success,
           message: result.alreadyExists
@@ -39,13 +50,13 @@ export const appRouter = router({
       }),
 
     /** Admin-only: get total subscriber count */
-    count: protectedProcedure.query(async () => {
+    count: adminProcedure.query(async () => {
       const count = await getSubscriberCount();
       return { count };
     }),
 
     /** Admin-only: list all subscribers */
-    list: protectedProcedure.query(async () => {
+    list: adminProcedure.query(async () => {
       const subs = await getAllSubscribers();
       return subs;
     }),

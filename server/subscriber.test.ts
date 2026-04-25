@@ -27,6 +27,14 @@ vi.mock("./db", () => {
   };
 });
 
+/**
+ * Mock the notification module so tests don't call the real notification service.
+ */
+const mockNotifyOwner = vi.fn(async () => true);
+vi.mock("./_core/notification", () => ({
+  notifyOwner: (...args: any[]) => mockNotifyOwner(...args),
+}));
+
 function createPublicContext(): TrpcContext {
   return {
     user: null,
@@ -40,13 +48,14 @@ function createPublicContext(): TrpcContext {
   };
 }
 
-function createAuthContext(): TrpcContext {
+/** Regular authenticated user (role: "user") — should NOT access admin endpoints */
+function createUserContext(): TrpcContext {
   return {
     user: {
-      id: 1,
-      openId: "owner-user",
-      email: "owner@example.com",
-      name: "Owner",
+      id: 2,
+      openId: "regular-user",
+      email: "user@example.com",
+      name: "Regular User",
       loginMethod: "manus",
       role: "user",
       createdAt: new Date(),
@@ -63,7 +72,35 @@ function createAuthContext(): TrpcContext {
   };
 }
 
+/** Admin user (role: "admin") — should access admin endpoints */
+function createAdminContext(): TrpcContext {
+  return {
+    user: {
+      id: 1,
+      openId: "admin-user",
+      email: "admin@example.com",
+      name: "Admin",
+      loginMethod: "manus",
+      role: "admin",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      lastSignedIn: new Date(),
+    },
+    req: {
+      protocol: "https",
+      headers: {},
+    } as TrpcContext["req"],
+    res: {
+      clearCookie: vi.fn(),
+    } as unknown as TrpcContext["res"],
+  };
+}
+
 describe("subscriber.subscribe", () => {
+  beforeEach(() => {
+    mockNotifyOwner.mockClear();
+  });
+
   it("accepts a valid email and returns success", async () => {
     const ctx = createPublicContext();
     const caller = appRouter.createCaller(ctx);
@@ -80,7 +117,6 @@ describe("subscriber.subscribe", () => {
     const ctx = createPublicContext();
     const caller = appRouter.createCaller(ctx);
 
-    // Subscribe the same email again (mock tracks it)
     const result = await caller.subscriber.subscribe({
       email: "newuser@govcheat.com",
     });
@@ -109,11 +145,45 @@ describe("subscriber.subscribe", () => {
 
     expect(result.success).toBe(true);
   });
+
+  it("triggers owner notification on new subscriber", async () => {
+    const ctx = createPublicContext();
+    const caller = appRouter.createCaller(ctx);
+
+    await caller.subscriber.subscribe({
+      email: "notify-test@govcheat.com",
+    });
+
+    // Wait a tick for the fire-and-forget promise
+    await new Promise((r) => setTimeout(r, 50));
+
+    expect(mockNotifyOwner).toHaveBeenCalledTimes(1);
+    expect(mockNotifyOwner).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: expect.stringContaining("notify-test@govcheat.com"),
+        content: expect.stringContaining("notify-test@govcheat.com"),
+      })
+    );
+  });
+
+  it("does NOT notify owner on duplicate subscription", async () => {
+    mockNotifyOwner.mockClear();
+    const ctx = createPublicContext();
+    const caller = appRouter.createCaller(ctx);
+
+    await caller.subscriber.subscribe({
+      email: "notify-test@govcheat.com",
+    });
+
+    await new Promise((r) => setTimeout(r, 50));
+
+    expect(mockNotifyOwner).not.toHaveBeenCalled();
+  });
 });
 
-describe("subscriber.count (protected)", () => {
-  it("returns count for authenticated users", async () => {
-    const ctx = createAuthContext();
+describe("subscriber.count (admin-only)", () => {
+  it("returns count for admin users", async () => {
+    const ctx = createAdminContext();
     const caller = appRouter.createCaller(ctx);
 
     const result = await caller.subscriber.count();
@@ -126,11 +196,18 @@ describe("subscriber.count (protected)", () => {
 
     await expect(caller.subscriber.count()).rejects.toThrow();
   });
+
+  it("rejects non-admin authenticated users", async () => {
+    const ctx = createUserContext();
+    const caller = appRouter.createCaller(ctx);
+
+    await expect(caller.subscriber.count()).rejects.toThrow(/permission/i);
+  });
 });
 
-describe("subscriber.list (protected)", () => {
-  it("returns subscriber list for authenticated users", async () => {
-    const ctx = createAuthContext();
+describe("subscriber.list (admin-only)", () => {
+  it("returns subscriber list for admin users", async () => {
+    const ctx = createAdminContext();
     const caller = appRouter.createCaller(ctx);
 
     const result = await caller.subscriber.list();
@@ -144,5 +221,12 @@ describe("subscriber.list (protected)", () => {
     const caller = appRouter.createCaller(ctx);
 
     await expect(caller.subscriber.list()).rejects.toThrow();
+  });
+
+  it("rejects non-admin authenticated users", async () => {
+    const ctx = createUserContext();
+    const caller = appRouter.createCaller(ctx);
+
+    await expect(caller.subscriber.list()).rejects.toThrow(/permission/i);
   });
 });

@@ -15,3 +15,29 @@
 - [x] Push database schema with pnpm db:push
 - [x] Write vitest test for subscriber endpoint
 - [x] Test full email capture flow end-to-end
+
+## Phase 2 — Upsell, Email Delivery, Admin Dashboard
+
+- [x] Create Thank You / Upsell page with 4-tier pricing ($0/$29/$79/$299)
+- [x] Add route for /thank-you in App.tsx
+- [x] Redirect to /thank-you after successful email submission
+- [x] Upload cheat sheet PDF to S3 storage for delivery
+- [x] Integrate email delivery (owner notification on signup + PDF download)
+- [x] Build admin dashboard page with subscriber count and list
+- [x] Add CSV export functionality for subscriber list
+- [x] Add protected /admin route in App.tsx
+- [x] Write vitest tests for new features
+- [x] End-to-end test all three features
+
+## Phase 3 — 4-Tier Pricing + AI Bid Writer
+
+- [x] Rebuild Thank You / Upsell page with 4-tier pricing ($0/$29/$79/$299)
+- [x] Feature AI Bid Writer as core paid-tier differentiator
+- [x] Add tier comparison table with feature breakdown
+- [x] Finalize admin dashboard and all routes
+- [x] Restart server and verify all pages render
+- [x] Write vitest tests for updated features (13 tests passing)
+- [x] Upgrade subscriber.count and subscriber.list to adminProcedure
+- [x] Add forbidden-access UI for non-admin users on /admin
+- [x] Add tests for non-admin rejection on admin endpoints
+- [x] End-to-end test and checkpoint
