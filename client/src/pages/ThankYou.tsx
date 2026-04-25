@@ -6,6 +6,8 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { trpc } from "@/lib/trpc";
+import { toast } from "sonner";
 import {
   CheckCircle,
   Download,
@@ -113,6 +115,8 @@ const tiers = [
 
 export default function ThankYou() {
   const [countdown, setCountdown] = useState(15 * 60);
+  const [loadingTier, setLoadingTier] = useState<string | null>(null);
+  const createCheckoutMutation = trpc.stripe.createCheckoutSession.useMutation();
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -123,6 +127,26 @@ export default function ThankYou() {
 
   const minutes = Math.floor(countdown / 60);
   const seconds = countdown % 60;
+
+  const handleCheckout = async (tier: "operator" | "contractor" | "prime") => {
+    setLoadingTier(tier);
+    try {
+      const result = await createCheckoutMutation.mutateAsync({
+        tier,
+        origin: window.location.origin,
+      });
+
+      if (result.checkoutUrl) {
+        window.open(result.checkoutUrl, "_blank");
+        toast.success("Redirecting to checkout...");
+      }
+    } catch (error) {
+      console.error("Checkout error:", error);
+      toast.error("Failed to start checkout. Please try again.");
+    } finally {
+      setLoadingTier(null);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
@@ -375,18 +399,27 @@ export default function ThankYou() {
                     </ul>
                   </div>
 
-                  <a
-                    href={tier.price === 0 ? "#" : "https://govcheat.com"}
-                    className={`inline-flex items-center justify-center gap-2 font-display font-bold px-6 py-3 text-sm transition-all w-full ${tier.ctaStyle}`}
-                    onClick={
-                      tier.price === 0
-                        ? (e: React.MouseEvent) => e.preventDefault()
-                        : undefined
-                    }
+                  <button
+                    onClick={() => {
+                      if (tier.price > 0) {
+                        handleCheckout(tier.name.toLowerCase() as "operator" | "contractor" | "prime");
+                      }
+                    }}
+                    disabled={tier.price === 0 || loadingTier === tier.name.toLowerCase()}
+                    className={`inline-flex items-center justify-center gap-2 font-display font-bold px-6 py-3 text-sm transition-all w-full disabled:opacity-50 disabled:cursor-not-allowed ${tier.ctaStyle}`}
                   >
-                    {tier.cta}
-                    {tier.price > 0 && <ArrowRight size={14} />}
-                  </a>
+                    {loadingTier === tier.name.toLowerCase() ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                        Processing...
+                      </>
+                    ) : (
+                      <>
+                        {tier.cta}
+                        {tier.price > 0 && <ArrowRight size={14} />}
+                      </>
+                    )}
+                  </button>
                 </motion.div>
               ))}
             </div>

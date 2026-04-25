@@ -41,3 +41,15 @@
 - [x] Add forbidden-access UI for non-admin users on /admin
 - [x] Add tests for non-admin rejection on admin endpoints
 - [x] End-to-end test and checkpoint
+
+## Phase 4 — Stripe Payment Integration
+
+- [x] Create Stripe products for all 4 tiers (Scout, Operator, Contractor, Prime)
+- [x] Create recurring prices ($0/$29/$79/$299 monthly)
+- [x] Add Stripe feature to webdev project
+- [x] Configure Stripe secret key (auto-injected)
+- [x] Create Stripe Checkout session endpoint
+- [x] Wire Thank You page pricing buttons to Stripe Checkout
+- [x] Handle post-checkout success/cancel redirects (built into checkout URL)
+- [x] Write vitest tests for Stripe endpoints (8 tests passing)
+- [x] End-to-end test and checkpoint
