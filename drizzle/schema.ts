@@ -121,3 +121,48 @@ export const pushNotifications = mysqlTable("pushNotifications", {
 
 export type PushNotification = typeof pushNotifications.$inferSelect;
 export type InsertPushNotification = typeof pushNotifications.$inferInsert;
+
+/**
+ * Government contracts — stores contract listings from SAM.gov with simplified language.
+ * Each contract includes plain English descriptions and tier-based visibility.
+ */
+export const contracts = mysqlTable("contracts", {
+  id: int("id").autoincrement().primaryKey(),
+  samId: varchar("samId", { length: 128 }).notNull().unique(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  simplifiedDescription: text("simplifiedDescription").notNull(),
+  agency: varchar("agency", { length: 256 }).notNull(),
+  contractType: varchar("contractType", { length: 128 }).notNull(),
+  simplifiedType: varchar("simplifiedType", { length: 128 }).notNull(),
+  value: int("value"),
+  deadline: timestamp("deadline"),
+  difficulty: mysqlEnum("difficulty", ["easy", "moderate", "hard"]).notNull(),
+  category: varchar("category", { length: 128 }).notNull(),
+  setAside: varchar("setAside", { length: 128 }),
+  naicsCode: varchar("naicsCode", { length: 10 }),
+  url: varchar("url", { length: 512 }),
+  minTierRequired: mysqlEnum("minTierRequired", ["scout", "operator", "contractor", "prime"]).default("scout").notNull(),
+  isActive: boolean("isActive").default(true).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Contract = typeof contracts.$inferSelect;
+export type InsertContract = typeof contracts.$inferInsert;
+
+/**
+ * Saved contracts — allows users to bookmark/save contracts for later review.
+ */
+export const savedContracts = mysqlTable("savedContracts", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  contractId: int("contractId").notNull(),
+  notes: text("notes"),
+  status: mysqlEnum("status", ["saved", "interested", "bidding", "won", "rejected"]).default("saved").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type SavedContract = typeof savedContracts.$inferSelect;
+export type InsertSavedContract = typeof savedContracts.$inferInsert;

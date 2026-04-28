@@ -81,3 +81,19 @@
 - [x] Implement production-ready Web Push with VAPID keys and web-push library
 - [x] Write vitest tests for push notification endpoints (6 tests passing)
 - [x] End-to-end test and checkpoint
+
+
+## Phase 7 — Site Merge & Contracts Page
+
+- [ ] Create Contracts page component with real SAM.gov data integration
+- [ ] Implement contract language simplification layer (jargon → plain English)
+- [ ] Add post-signup redirect logic (free tier → contracts page with limited searches)
+- [ ] Build contracts search and filtering UI
+- [ ] Add tier-based feature restrictions (free vs paid)
+- [ ] Implement contract detail view with simplified descriptions
+- [ ] Create saved contracts feature for authenticated users
+- [ ] Wire "Contracts" link in navigation to /contracts page
+- [ ] Update Home.tsx to redirect to /contracts after successful signup
+- [ ] Test end-to-end signup → thank you → contracts flow
+- [ ] Write vitest tests for contracts endpoints
+- [ ] Save checkpoint with merged site

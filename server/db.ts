@@ -1,6 +1,6 @@
-import { eq, and } from "drizzle-orm";
+import { eq, and, or, like } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, subscribers, InsertSubscriber, subscriptions, paymentHistory, InsertSubscription, InsertPaymentHistory, pushSubscriptions, pushNotifications, InsertPushSubscription, InsertPushNotification } from "../drizzle/schema";
+import { InsertUser, users, subscribers, InsertSubscriber, subscriptions, paymentHistory, InsertSubscription, InsertPaymentHistory, pushSubscriptions, pushNotifications, InsertPushSubscription, InsertPushNotification, contracts, savedContracts, InsertSavedContract } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -303,6 +303,118 @@ export async function markPushNotificationAsRead(notificationId: number): Promis
       .where(eq(pushNotifications.id, notificationId));
   } catch (error) {
     console.error("[Database] Failed to mark notification as read:", error);
+    throw error;
+  }
+}
+
+/* ─── Contract helpers ─── */
+
+export async function getAllContracts(limit: number = 50, offset: number = 0) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get contracts: database not available");
+    return [];
+  }
+
+  try {
+    const result = await db
+      .select()
+      .from(contracts)
+      .where(eq(contracts.isActive, true))
+      .limit(limit)
+      .offset(offset);
+    return result;
+  } catch (error) {
+    console.error("[Database] Failed to get contracts:", error);
+    throw error;
+  }
+}
+
+export async function searchContracts(query: string, limit: number = 50) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot search contracts: database not available");
+    return [];
+  }
+
+  try {
+    const result = await db
+      .select()
+      .from(contracts)
+      .where(
+        and(
+          eq(contracts.isActive, true),
+          or(
+            like(contracts.title, `%${query}%`),
+            like(contracts.simplifiedDescription, `%${query}%`),
+            like(contracts.agency, `%${query}%`),
+            like(contracts.category, `%${query}%`)
+          )
+        )
+      )
+      .limit(limit);
+    return result;
+  } catch (error) {
+    console.error("[Database] Failed to search contracts:", error);
+    throw error;
+  }
+}
+
+export async function getContractsByCategory(category: string, limit: number = 50) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get contracts by category: database not available");
+    return [];
+  }
+
+  try {
+    const result = await db
+      .select()
+      .from(contracts)
+      .where(and(eq(contracts.isActive, true), eq(contracts.category, category)))
+      .limit(limit);
+    return result;
+  } catch (error) {
+    console.error("[Database] Failed to get contracts by category:", error);
+    throw error;
+  }
+}
+
+export async function getSavedContracts(userId: number) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get saved contracts: database not available");
+    return [];
+  }
+
+  try {
+    const result = await db
+      .select()
+      .from(savedContracts)
+      .where(eq(savedContracts.userId, userId));
+    return result;
+  } catch (error) {
+    console.error("[Database] Failed to get saved contracts:", error);
+    throw error;
+  }
+}
+
+export async function saveContract(userId: number, contractId: number, notes?: string) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot save contract: database not available");
+    return;
+  }
+
+  try {
+    await db.insert(savedContracts).values({
+      userId,
+      contractId,
+      notes: notes || null,
+      status: "saved",
+    });
+  } catch (error) {
+    console.error("[Database] Failed to save contract:", error);
     throw error;
   }
 }
