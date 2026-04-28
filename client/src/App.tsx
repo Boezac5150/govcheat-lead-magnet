@@ -8,11 +8,13 @@ import Home from "./pages/Home";
 import ThankYou from "./pages/ThankYou";
 import Admin from "./pages/Admin";
 import Dashboard from "./pages/Dashboard";
+import Contracts from "./pages/Contracts";
 
 function Router() {
   return (
     <Switch>
       <Route path={"/"} component={Home} />
+      <Route path={"/contracts"} component={Contracts} />
       <Route path={"/thank-you"} component={ThankYou} />
       <Route path={"/dashboard"} component={Dashboard} />
       <Route path={"/admin"} component={Admin} />

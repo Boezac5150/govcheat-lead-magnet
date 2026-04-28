@@ -7,6 +7,7 @@ import { notifyOwner } from "./_core/notification";
 import { stripeRouter } from "./routers/stripe";
 import { dashboardRouter } from "./routers/dashboard";
 import { notificationsRouter } from "./routers/notifications";
+import { contractsRouter } from "./routers/contracts";
 import { z } from "zod";
 
 export const appRouter = router({
@@ -14,6 +15,7 @@ export const appRouter = router({
   stripe: stripeRouter,
   dashboard: dashboardRouter,
   notifications: notificationsRouter,
+  contracts: contractsRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {
