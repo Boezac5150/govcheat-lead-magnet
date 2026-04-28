@@ -39,3 +39,45 @@ export const subscribers = mysqlTable("subscribers", {
 
 export type Subscriber = typeof subscribers.$inferSelect;
 export type InsertSubscriber = typeof subscribers.$inferInsert;
+
+/**
+ * User subscriptions — tracks active subscriptions linked to Stripe.
+ * Stores only essential Stripe identifiers; fetch full details from Stripe API.
+ */
+export const subscriptions = mysqlTable("subscriptions", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  stripeSubscriptionId: varchar("stripeSubscriptionId", { length: 128 }).notNull().unique(),
+  stripeCustomerId: varchar("stripeCustomerId", { length: 128 }).notNull(),
+  tier: mysqlEnum("tier", ["scout", "operator", "contractor", "prime"]).notNull(),
+  status: mysqlEnum("status", ["active", "past_due", "canceled", "paused"]).default("active").notNull(),
+  currentPeriodStart: timestamp("currentPeriodStart"),
+  currentPeriodEnd: timestamp("currentPeriodEnd"),
+  canceledAt: timestamp("canceledAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Subscription = typeof subscriptions.$inferSelect;
+export type InsertSubscription = typeof subscriptions.$inferInsert;
+
+/**
+ * Payment history — tracks invoices and charges for user subscriptions.
+ * Stores only essential Stripe identifiers; fetch full details from Stripe API.
+ */
+export const paymentHistory = mysqlTable("paymentHistory", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  stripeInvoiceId: varchar("stripeInvoiceId", { length: 128 }).notNull().unique(),
+  stripePaymentIntentId: varchar("stripePaymentIntentId", { length: 128 }),
+  amount: int("amount").notNull(),
+  currency: varchar("currency", { length: 3 }).default("usd").notNull(),
+  status: mysqlEnum("status", ["paid", "pending", "failed", "refunded"]).notNull(),
+  description: text("description"),
+  paidAt: timestamp("paidAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type PaymentHistory = typeof paymentHistory.$inferSelect;
+export type InsertPaymentHistory = typeof paymentHistory.$inferInsert;

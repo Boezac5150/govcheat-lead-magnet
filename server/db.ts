@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, subscribers, InsertSubscriber } from "../drizzle/schema";
+import { InsertUser, users, subscribers, InsertSubscriber, subscriptions, paymentHistory, InsertSubscription, InsertPaymentHistory } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -134,4 +134,89 @@ export async function getAllSubscribers() {
   if (!db) return [];
 
   return db.select().from(subscribers);
+}
+
+/* Subscription helpers */
+
+export async function getUserSubscription(userId: number) {
+  const db = await getDb();
+  if (!db) return null;
+
+  const result = await db
+    .select()
+    .from(subscriptions)
+    .where(eq(subscriptions.userId, userId))
+    .limit(1);
+
+  return result.length > 0 ? result[0] : null;
+}
+
+export async function upsertSubscription(data: InsertSubscription): Promise<void> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  try {
+    const existing = await db
+      .select()
+      .from(subscriptions)
+      .where(eq(subscriptions.stripeSubscriptionId, data.stripeSubscriptionId!))
+      .limit(1);
+
+    if (existing.length > 0) {
+      await db
+        .update(subscriptions)
+        .set(data)
+        .where(eq(subscriptions.stripeSubscriptionId, data.stripeSubscriptionId!));
+    } else {
+      await db.insert(subscriptions).values(data);
+    }
+  } catch (error) {
+    console.error("[Database] Failed to upsert subscription:", error);
+    throw error;
+  }
+}
+
+/* Payment history helpers */
+
+export async function getUserPaymentHistory(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return db
+    .select()
+    .from(paymentHistory)
+    .where(eq(paymentHistory.userId, userId));
+}
+
+export async function insertPayment(data: InsertPaymentHistory): Promise<void> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  try {
+    await db.insert(paymentHistory).values(data);
+  } catch (error) {
+    console.error("[Database] Failed to insert payment:", error);
+    throw error;
+  }
+}
+
+export async function updatePaymentStatus(invoiceId: string, status: "paid" | "pending" | "failed" | "refunded"): Promise<void> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  try {
+    await db
+      .update(paymentHistory)
+      .set({ status, updatedAt: new Date() })
+      .where(eq(paymentHistory.stripeInvoiceId, invoiceId));
+  } catch (error) {
+    console.error("[Database] Failed to update payment status:", error);
+    throw error;
+  }
 }

@@ -5,11 +5,13 @@ import { publicProcedure, protectedProcedure, adminProcedure, router } from "./_
 import { insertSubscriber, getSubscriberCount, getAllSubscribers } from "./db";
 import { notifyOwner } from "./_core/notification";
 import { stripeRouter } from "./routers/stripe";
+import { dashboardRouter } from "./routers/dashboard";
 import { z } from "zod";
 
 export const appRouter = router({
   system: systemRouter,
   stripe: stripeRouter,
+  dashboard: dashboardRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {

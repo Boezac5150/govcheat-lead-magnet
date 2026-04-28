@@ -15,6 +15,13 @@
       "when": 1776880226638,
       "tag": "0001_panoramic_clea",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1777391692758,
+      "tag": "0002_lively_katie_power",
+      "breakpoints": true
     }
   ]
 }

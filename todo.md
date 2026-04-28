@@ -53,3 +53,15 @@
 - [x] Handle post-checkout success/cancel redirects (built into checkout URL)
 - [x] Write vitest tests for Stripe endpoints (8 tests passing)
 - [x] End-to-end test and checkpoint
+
+
+## Phase 5 — User Dashboard
+
+- [x] Add subscription and payment history tables to database schema
+- [x] Create tRPC procedures to fetch subscription status from Stripe
+- [x] Create tRPC procedures to fetch payment history from Stripe
+- [x] Build Dashboard page component with subscription info
+- [x] Add payment history table with date, amount, status
+- [x] Add account management section (change plan, cancel subscription)
+- [x] Write vitest tests for dashboard endpoints (6 tests passing)
+- [x] Test dashboard end-to-end and checkpoint
