@@ -65,3 +65,8 @@
 - [x] Add account management section (change plan, cancel subscription)
 - [x] Write vitest tests for dashboard endpoints (6 tests passing)
 - [x] Test dashboard end-to-end and checkpoint
+
+
+## Blocking Issues
+
+- [x] Fix Stripe webhook endpoint to return valid JSON response with "verified": true (4 webhook tests passing)

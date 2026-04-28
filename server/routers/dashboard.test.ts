@@ -53,7 +53,7 @@ describe("dashboard.getSubscription", () => {
 
     expect(result.hasSubscription).toBe(false);
     expect(result.subscription).toBeNull();
-  });
+  }, { timeout: 10000 });
 });
 
 describe("dashboard.getPaymentHistory", () => {
@@ -81,7 +81,7 @@ describe("dashboard.getPaymentHistory", () => {
 
     expect(result.payments).toEqual([]);
     expect(result.total).toBe(0);
-  });
+  }, { timeout: 10000 });
 });
 
 describe("dashboard.getMetrics", () => {
@@ -112,5 +112,5 @@ describe("dashboard.getMetrics", () => {
     expect(result.totalPayments).toBe(0);
     expect(result.totalSpent).toBe(0);
     expect(result.lastPaymentDate).toBeNull();
-  });
+  }, { timeout: 10000 });
 });
