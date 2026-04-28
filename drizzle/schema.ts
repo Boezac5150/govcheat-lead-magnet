@@ -81,3 +81,43 @@ export const paymentHistory = mysqlTable("paymentHistory", {
 
 export type PaymentHistory = typeof paymentHistory.$inferSelect;
 export type InsertPaymentHistory = typeof paymentHistory.$inferInsert;
+
+/**
+ * Push notification subscriptions — stores browser push notification endpoints.
+ * Each user can have multiple devices/browsers registered for push notifications.
+ */
+export const pushSubscriptions = mysqlTable("pushSubscriptions", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  endpoint: text("endpoint").notNull(),
+  auth: varchar("auth", { length: 256 }).notNull(),
+  p256dh: varchar("p256dh", { length: 256 }).notNull(),
+  userAgent: text("userAgent"),
+  isActive: boolean("isActive").default(true).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type PushSubscription = typeof pushSubscriptions.$inferSelect;
+export type InsertPushSubscription = typeof pushSubscriptions.$inferInsert;
+
+/**
+ * Push notifications — stores sent notifications for history and tracking.
+ */
+export const pushNotifications = mysqlTable("pushNotifications", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  title: varchar("title", { length: 256 }).notNull(),
+  body: text("body").notNull(),
+  icon: varchar("icon", { length: 512 }),
+  badge: varchar("badge", { length: 512 }),
+  tag: varchar("tag", { length: 128 }),
+  type: mysqlEnum("type", ["contract", "bid", "subscription", "payment", "alert", "info"]).default("info").notNull(),
+  actionUrl: varchar("actionUrl", { length: 512 }),
+  isRead: boolean("isRead").default(false).notNull(),
+  sentAt: timestamp("sentAt").defaultNow().notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type PushNotification = typeof pushNotifications.$inferSelect;
+export type InsertPushNotification = typeof pushNotifications.$inferInsert;

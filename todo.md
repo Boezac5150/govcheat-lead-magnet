@@ -70,3 +70,14 @@
 ## Blocking Issues
 
 - [x] Fix Stripe webhook endpoint to return valid JSON response with "verified": true (4 webhook tests passing)
+
+
+## Phase 6 — Browser Push Notifications
+
+- [x] Add pushNotifications and notificationSubscriptions tables to database schema
+- [x] Create tRPC endpoints for push notification management (subscribe, unsubscribe, send)
+- [x] Implement Service Worker for handling push events
+- [x] Add push notification registration on frontend (request permission, store subscription)
+- [x] Implement production-ready Web Push with VAPID keys and web-push library
+- [x] Write vitest tests for push notification endpoints (6 tests passing)
+- [x] End-to-end test and checkpoint

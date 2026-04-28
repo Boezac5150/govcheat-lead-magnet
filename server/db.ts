@@ -1,6 +1,6 @@
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, subscribers, InsertSubscriber, subscriptions, paymentHistory, InsertSubscription, InsertPaymentHistory } from "../drizzle/schema";
+import { InsertUser, users, subscribers, InsertSubscriber, subscriptions, paymentHistory, InsertSubscription, InsertPaymentHistory, pushSubscriptions, pushNotifications, InsertPushSubscription, InsertPushNotification } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -217,6 +217,92 @@ export async function updatePaymentStatus(invoiceId: string, status: "paid" | "p
       .where(eq(paymentHistory.stripeInvoiceId, invoiceId));
   } catch (error) {
     console.error("[Database] Failed to update payment status:", error);
+    throw error;
+  }
+}
+
+
+/* Push notification helpers */
+
+export async function subscribeToPushNotifications(userId: number, subscription: InsertPushSubscription): Promise<void> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  try {
+    await db.insert(pushSubscriptions).values(subscription);
+  } catch (error) {
+    console.error("[Database] Failed to subscribe to push notifications:", error);
+    throw error;
+  }
+}
+
+export async function unsubscribeFromPushNotifications(userId: number, endpoint: string): Promise<void> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  try {
+    await db
+      .update(pushSubscriptions)
+      .set({ isActive: false })
+      .where(and(eq(pushSubscriptions.userId, userId), eq(pushSubscriptions.endpoint, endpoint)));
+  } catch (error) {
+    console.error("[Database] Failed to unsubscribe from push notifications:", error);
+    throw error;
+  }
+}
+
+export async function getUserPushSubscriptions(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return db
+    .select()
+    .from(pushSubscriptions)
+    .where(and(eq(pushSubscriptions.userId, userId), eq(pushSubscriptions.isActive, true)));
+}
+
+export async function insertPushNotification(data: InsertPushNotification): Promise<void> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  try {
+    await db.insert(pushNotifications).values(data);
+  } catch (error) {
+    console.error("[Database] Failed to insert push notification:", error);
+    throw error;
+  }
+}
+
+export async function getUserPushNotifications(userId: number, limit: number = 50) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return db
+    .select()
+    .from(pushNotifications)
+    .where(eq(pushNotifications.userId, userId))
+    .limit(limit);
+}
+
+export async function markPushNotificationAsRead(notificationId: number): Promise<void> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  try {
+    await db
+      .update(pushNotifications)
+      .set({ isRead: true })
+      .where(eq(pushNotifications.id, notificationId));
+  } catch (error) {
+    console.error("[Database] Failed to mark notification as read:", error);
     throw error;
   }
 }
