@@ -18,7 +18,7 @@
 
 ## Phase 2 — Upsell, Email Delivery, Admin Dashboard
 
-- [x] Create Thank You / Upsell page with 4-tier pricing ($0/$29/$79/$299)
+- [x] Create Thank You / Upsell page with 4-tier pricing
 - [x] Add route for /thank-you in App.tsx
 - [x] Redirect to /thank-you after successful email submission
 - [x] Upload cheat sheet PDF to S3 storage for delivery
@@ -31,12 +31,12 @@
 
 ## Phase 3 — 4-Tier Pricing + AI Bid Writer
 
-- [x] Rebuild Thank You / Upsell page with 4-tier pricing ($0/$29/$79/$299)
+- [x] Rebuild Thank You / Upsell page with 4-tier pricing
 - [x] Feature AI Bid Writer as core paid-tier differentiator
 - [x] Add tier comparison table with feature breakdown
 - [x] Finalize admin dashboard and all routes
 - [x] Restart server and verify all pages render
-- [x] Write vitest tests for updated features (13 tests passing)
+- [x] Write vitest tests for updated features
 - [x] Upgrade subscriber.count and subscriber.list to adminProcedure
 - [x] Add forbidden-access UI for non-admin users on /admin
 - [x] Add tests for non-admin rejection on admin endpoints
@@ -44,56 +44,49 @@
 
 ## Phase 4 — Stripe Payment Integration
 
-- [x] Create Stripe products for all 4 tiers (Scout, Operator, Contractor, Prime)
+- [x] Create Stripe products for all 4 tiers
 - [x] Create recurring prices ($0/$29/$79/$299 monthly)
 - [x] Add Stripe feature to webdev project
 - [x] Configure Stripe secret key (auto-injected)
 - [x] Create Stripe Checkout session endpoint
 - [x] Wire Thank You page pricing buttons to Stripe Checkout
-- [x] Handle post-checkout success/cancel redirects (built into checkout URL)
-- [x] Write vitest tests for Stripe endpoints (8 tests passing)
+- [x] Handle post-checkout success/cancel redirects
+- [x] Write vitest tests for Stripe endpoints
 - [x] End-to-end test and checkpoint
-
 
 ## Phase 5 — User Dashboard
 
 - [x] Add subscription and payment history tables to database schema
-- [x] Create tRPC procedures to fetch subscription status from Stripe
-- [x] Create tRPC procedures to fetch payment history from Stripe
+- [x] Create tRPC procedures to fetch subscription status
+- [x] Create tRPC procedures to fetch payment history
 - [x] Build Dashboard page component with subscription info
 - [x] Add payment history table with date, amount, status
-- [x] Add account management section (change plan, cancel subscription)
-- [x] Write vitest tests for dashboard endpoints (6 tests passing)
+- [x] Add account management section
+- [x] Write vitest tests for dashboard endpoints
 - [x] Test dashboard end-to-end and checkpoint
-
-
-## Blocking Issues
-
-- [x] Fix Stripe webhook endpoint to return valid JSON response with "verified": true (4 webhook tests passing)
-
 
 ## Phase 6 — Browser Push Notifications
 
-- [x] Add pushNotifications and notificationSubscriptions tables to database schema
-- [x] Create tRPC endpoints for push notification management (subscribe, unsubscribe, send)
+- [x] Add pushNotifications and notificationSubscriptions tables
+- [x] Create tRPC endpoints for push notification management
 - [x] Implement Service Worker for handling push events
-- [x] Add push notification registration on frontend (request permission, store subscription)
-- [x] Implement production-ready Web Push with VAPID keys and web-push library
-- [x] Write vitest tests for push notification endpoints (6 tests passing)
+- [x] Add push notification registration on frontend
+- [x] Implement production-ready Web Push with VAPID keys
+- [x] Write vitest tests for push notification endpoints
 - [x] End-to-end test and checkpoint
-
 
 ## Phase 7 — Site Merge & Contracts Page
 
-- [ ] Create Contracts page component with real SAM.gov data integration
-- [ ] Implement contract language simplification layer (jargon → plain English)
-- [ ] Add post-signup redirect logic (free tier → contracts page with limited searches)
-- [ ] Build contracts search and filtering UI
-- [ ] Add tier-based feature restrictions (free vs paid)
+- [x] Create Contracts page component with mock data
+- [x] Implement contract language simplification layer
+- [x] Add post-signup redirect to /contracts instead of /thank-you
+- [x] Build contracts search and filtering UI
+- [ ] Enforce tier-based feature restrictions (free: 5 searches/day, paid: unlimited)
 - [ ] Implement contract detail view with simplified descriptions
-- [ ] Create saved contracts feature for authenticated users
-- [ ] Wire "Contracts" link in navigation to /contracts page
+- [x] Create saved contracts feature for authenticated users
+- [ ] Wire Contracts link in main navigation header
 - [ ] Update Home.tsx to redirect to /contracts after successful signup
-- [ ] Test end-to-end signup → thank you → contracts flow
-- [ ] Write vitest tests for contracts endpoints
-- [ ] Save checkpoint with merged site
+- [ ] Test end-to-end signup to contracts flow
+- [ ] Write vitest tests for contracts router
+- [ ] Integrate real SAM.gov API with daily sync job
+- [ ] Save checkpoint with merged site ready for govcheat.com domain

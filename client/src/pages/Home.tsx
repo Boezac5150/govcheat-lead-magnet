@@ -119,9 +119,9 @@ export default function Home() {
     onSuccess: () => {
       setSubmitted(true);
       setErrorMsg("");
-      // Redirect to thank-you / upsell page after short delay
+      // Redirect to contracts page after short delay
       setTimeout(() => {
-        setLocation("/thank-you");
+        setLocation("/contracts");
       }, 1500);
     },
     onError: (err) => {
