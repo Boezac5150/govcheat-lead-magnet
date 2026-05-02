@@ -92,3 +92,5 @@
 - [x] Write vitest tests for contracts router and SAM.gov integration
 - [x] Test end-to-end signup to live contracts flow
 - [x] Deploy and verify live data on govcheat.com
+- [x] Add "View Contract" links to each bid (SAM.gov)
+- [x] Add "Leads Portal" navigation link to contracts page

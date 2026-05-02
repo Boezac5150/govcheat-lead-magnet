@@ -17,6 +17,7 @@ import {
   AlertCircle,
   CheckCircle2,
   Zap,
+  ExternalLink,
 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
@@ -244,6 +245,14 @@ export default function Contracts() {
             >
               <Filter size={18} />
             </Button>
+            <Button
+              onClick={() => window.open('https://leads.govcheat.com', '_blank')}
+              variant="outline"
+              className="border-green-500/30 text-green-400 whitespace-nowrap"
+              title="Go to Leads Portal"
+            >
+              Leads Portal
+            </Button>
           </div>
 
           {/* Filters */}
@@ -361,25 +370,36 @@ export default function Contracts() {
                       </p>
                     )}
 
-                    {/* Bid Analysis Button */}
-                    <Button
-                      onClick={() => handleAnalyzeBid(contract)}
-                      disabled={isLoading}
-                      className="w-full bg-green-600 hover:bg-green-700 text-black font-bold py-2 flex items-center justify-center gap-2"
-                    >
-                      {isLoading ? (
-                        <>
-                          <Loader2 className="animate-spin" size={18} />
-                          Analyzing...
-                        </>
-                      ) : (
-                        <>
-                          <Zap size={18} />
-                          {isExpanded ? "Hide" : "Show"} Bid Summary & Win Probability
-                          {isExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-                        </>
-                      )}
-                    </Button>
+                    {/* Action Buttons */}
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={() => handleAnalyzeBid(contract)}
+                        disabled={isLoading}
+                        className="flex-1 bg-green-600 hover:bg-green-700 text-black font-bold py-2 flex items-center justify-center gap-2"
+                      >
+                        {isLoading ? (
+                          <>
+                            <Loader2 className="animate-spin" size={18} />
+                            Analyzing...
+                          </>
+                        ) : (
+                          <>
+                            <Zap size={18} />
+                            {isExpanded ? "Hide" : "Show"} Bid Summary
+                            {isExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                          </>
+                        )}
+                      </Button>
+                      <Button
+                        onClick={() => window.open(contract.url || `https://sam.gov/contract/${contract.samId}`, '_blank')}
+                        variant="outline"
+                        className="border-green-500/30 text-green-400 hover:bg-green-500/10 flex items-center gap-2"
+                        title="View full contract details on SAM.gov"
+                      >
+                        <ExternalLink size={18} />
+                        View Contract
+                      </Button>
+                    </div>
                   </div>
 
                   {/* Expanded Bid Analysis Section */}
