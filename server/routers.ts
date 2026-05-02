@@ -11,6 +11,7 @@ import { notificationsRouter } from "./routers/notifications";
 import { contractsRouter } from "./routers/contracts";
 import { bidAnalysisRouter } from "./routers/bidAnalysis";
 import { alertsRouter } from "./routers/alerts";
+import { bidsRouter } from "./routers/bids";
 import { z } from "zod";
 
 export const appRouter = router({
@@ -21,6 +22,7 @@ export const appRouter = router({
   contracts: contractsRouter,
   bidAnalysis: bidAnalysisRouter,
   alerts: alertsRouter,
+  bids: bidsRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {

@@ -43,6 +43,13 @@
       "when": 1777747514538,
       "tag": "0005_polite_leper_queen",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1777759689102,
+      "tag": "0006_tearful_king_cobra",
+      "breakpoints": true
     }
   ]
 }

@@ -1,4 +1,4 @@
-import { boolean, int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
+import { boolean, int, mysqlEnum, mysqlTable, text, timestamp, varchar, bigint } from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -203,3 +203,41 @@ export const alertHistory = mysqlTable("alertHistory", {
 
 export type AlertHistory = typeof alertHistory.$inferSelect;
 export type InsertAlertHistory = typeof alertHistory.$inferInsert;
+
+
+/**
+ * User bids — tracks bids placed on government contracts
+ */
+export const bids = mysqlTable("bids", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  contractId: varchar("contractId", { length: 128 }).notNull(),
+  contractTitle: text("contractTitle").notNull(),
+  contractValue: bigint("contractValue", { mode: "number" }),
+  bidAmount: bigint("bidAmount", { mode: "number" }),
+  bidStatus: mysqlEnum("bidStatus", ["active", "won", "lost", "working_on", "submitted"]).default("active").notNull(),
+  bidNotes: text("bidNotes"),
+  bidDate: timestamp("bidDate").defaultNow().notNull(),
+  deadline: timestamp("deadline"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Bid = typeof bids.$inferSelect;
+export type InsertBid = typeof bids.$inferInsert;
+
+/**
+ * Bid status history — tracks changes to bid status over time
+ */
+export const bidStatusHistory = mysqlTable("bidStatusHistory", {
+  id: int("id").autoincrement().primaryKey(),
+  bidId: int("bidId").notNull(),
+  userId: int("userId").notNull(),
+  oldStatus: varchar("oldStatus", { length: 64 }),
+  newStatus: varchar("newStatus", { length: 64 }).notNull(),
+  notes: text("notes"),
+  changedAt: timestamp("changedAt").defaultNow().notNull(),
+});
+
+export type BidStatusHistory = typeof bidStatusHistory.$inferSelect;
+export type InsertBidStatusHistory = typeof bidStatusHistory.$inferInsert;
