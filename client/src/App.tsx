@@ -9,12 +9,14 @@ import ThankYou from "./pages/ThankYou";
 import Admin from "./pages/Admin";
 import Dashboard from "./pages/Dashboard";
 import Contracts from "./pages/Contracts";
+import ContractDetail from "./pages/ContractDetail";
 
 function Router() {
   return (
     <Switch>
       <Route path={"/"} component={Home} />
       <Route path={"/contracts"} component={Contracts} />
+      <Route path={"/contract/:id"} component={ContractDetail} />
       <Route path={"/thank-you"} component={ThankYou} />
       <Route path={"/dashboard"} component={Dashboard} />
       <Route path={"/admin"} component={Admin} />

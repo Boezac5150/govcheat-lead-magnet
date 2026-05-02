@@ -94,3 +94,6 @@
 - [x] Deploy and verify live data on govcheat.com
 - [x] Add "View Contract" links to each bid (SAM.gov)
 - [x] Add "Leads Portal" navigation link to contracts page
+- [x] Add "View Contract" links to each bid (SAM.gov)
+- [x] Add "Leads Portal" navigation link to contracts page
+- [x] Create contract detail page with full specs and AI analysis

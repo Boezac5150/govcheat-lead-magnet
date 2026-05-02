@@ -20,6 +20,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { useLocation } from "wouter";
 import { toast } from "sonner";
 
 interface ContractFilters {
@@ -40,6 +41,7 @@ interface BidAnalysisData {
 
 export default function Contracts() {
   const { user, loading: authLoading } = useAuth();
+  const [, setLocation] = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState<ContractFilters>({});
   const [showFilters, setShowFilters] = useState(false);
@@ -391,10 +393,10 @@ export default function Contracts() {
                         )}
                       </Button>
                       <Button
-                        onClick={() => window.open(contract.url || `https://sam.gov/contract/${contract.samId}`, '_blank')}
+                        onClick={() => setLocation(`/contract/${contract.samId}`)}
                         variant="outline"
                         className="border-green-500/30 text-green-400 hover:bg-green-500/10 flex items-center gap-2"
-                        title="View full contract details on SAM.gov"
+                        title="View full contract details and AI analysis"
                       >
                         <ExternalLink size={18} />
                         View Contract
