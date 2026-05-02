@@ -97,3 +97,14 @@
 - [x] Add "View Contract" links to each bid (SAM.gov)
 - [x] Add "Leads Portal" navigation link to contracts page
 - [x] Create contract detail page with full specs and AI analysis
+
+## Phase 8 — Email Alerts for Saved Contracts
+
+- [x] Create contract alerts table in database schema
+- [x] Add tRPC endpoint to create/manage contract alerts
+- [ ] Build alert preferences UI on dashboard
+- [ ] Implement daily alert sync job
+- [x] Send email alerts when new contracts match saved searches
+- [ ] Add unsubscribe link to alert emails
+- [ ] Write vitest tests for alert endpoints
+- [ ] Test end-to-end alert flow

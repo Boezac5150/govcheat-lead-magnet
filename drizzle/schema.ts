@@ -166,3 +166,40 @@ export const savedContracts = mysqlTable("savedContracts", {
 
 export type SavedContract = typeof savedContracts.$inferSelect;
 export type InsertSavedContract = typeof savedContracts.$inferInsert;
+
+/**
+ * Contract alerts — allows users to set up email alerts for new contracts matching their criteria.
+ */
+export const contractAlerts = mysqlTable("contractAlerts", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  name: varchar("name", { length: 256 }).notNull(),
+  searchKeywords: text("searchKeywords").notNull(), // JSON array of keywords
+  minValue: int("minValue"),
+  maxValue: int("maxValue"),
+  difficulty: mysqlEnum("difficulty", ["easy", "moderate", "hard"]),
+  category: varchar("category", { length: 128 }),
+  setAside: varchar("setAside", { length: 128 }),
+  minTierRequired: mysqlEnum("minTierRequired", ["scout", "operator", "contractor", "prime"]).default("scout").notNull(),
+  emailFrequency: mysqlEnum("emailFrequency", ["daily", "weekly", "instantly"]).default("daily").notNull(),
+  isActive: boolean("isActive").default(true).notNull(),
+  lastAlertSentAt: timestamp("lastAlertSentAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ContractAlert = typeof contractAlerts.$inferSelect;
+export type InsertContractAlert = typeof contractAlerts.$inferInsert;
+
+/**
+ * Alert history — tracks which contracts were sent in which alerts.
+ */
+export const alertHistory = mysqlTable("alertHistory", {
+  id: int("id").autoincrement().primaryKey(),
+  alertId: int("alertId").notNull(),
+  contractId: int("contractId").notNull(),
+  sentAt: timestamp("sentAt").defaultNow().notNull(),
+});
+
+export type AlertHistory = typeof alertHistory.$inferSelect;
+export type InsertAlertHistory = typeof alertHistory.$inferInsert;
