@@ -102,7 +102,7 @@
 
 - [x] Create contract alerts table in database schema
 - [x] Add tRPC endpoint to create/manage contract alerts
-- [ ] Build alert preferences UI on dashboard
+- [x] Build alert preferences UI on dashboard
 - [ ] Implement daily alert sync job
 - [x] Send email alerts when new contracts match saved searches
 - [ ] Add unsubscribe link to alert emails

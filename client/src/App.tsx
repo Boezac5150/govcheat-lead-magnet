@@ -10,6 +10,7 @@ import Admin from "./pages/Admin";
 import Dashboard from "./pages/Dashboard";
 import Contracts from "./pages/Contracts";
 import ContractDetail from "./pages/ContractDetail";
+import AlertPreferences from "./pages/AlertPreferences";
 
 function Router() {
   return (
@@ -17,6 +18,7 @@ function Router() {
       <Route path={"/"} component={Home} />
       <Route path={"/contracts"} component={Contracts} />
       <Route path={"/contract/:id"} component={ContractDetail} />
+      <Route path={"/alerts"} component={AlertPreferences} />
       <Route path={"/thank-you"} component={ThankYou} />
       <Route path={"/dashboard"} component={Dashboard} />
       <Route path={"/admin"} component={Admin} />
