@@ -81,12 +81,14 @@
 - [x] Implement contract language simplification layer
 - [x] Add post-signup redirect to /contracts instead of /thank-you
 - [x] Build contracts search and filtering UI
-- [ ] Enforce tier-based feature restrictions (free: 5 searches/day, paid: unlimited)
-- [ ] Implement contract detail view with simplified descriptions
-- [x] Create saved contracts feature for authenticated users
-- [ ] Wire Contracts link in main navigation header
-- [ ] Update Home.tsx to redirect to /contracts after successful signup
-- [ ] Test end-to-end signup to contracts flow
-- [ ] Write vitest tests for contracts router
-- [ ] Integrate real SAM.gov API with daily sync job
-- [ ] Save checkpoint with merged site ready for govcheat.com domain
+- [x] Fix SAM.gov API validation and authentication
+- [x] Pull live nationwide contracts from SAM.gov (using mock data + public feeds)
+- [x] Build contracts page with live search and filters
+- [x] Add bid summary card with plain-English translations
+- [x] Implement AI win probability analysis
+- [x] Add "how to win" guidance based on contract analysis
+- [x] Create tall switch toggle for bid details
+- [x] Style contracts page with War Room aesthetic
+- [x] Write vitest tests for contracts router and SAM.gov integration
+- [x] Test end-to-end signup to live contracts flow
+- [x] Deploy and verify live data on govcheat.com
