@@ -4,6 +4,7 @@ import { getDb } from "../db";
 import { contracts, savedContracts } from "../../drizzle/schema";
 import { eq, and, sql } from "drizzle-orm";
 import { fetchContractsWithFailover } from "../_core/samGovHealthCheck";
+import { getRealContracts } from "../_core/realDataService";
 
 export const contractsRouter = router({
   /**
@@ -50,8 +51,8 @@ export const contractsRouter = router({
   getById: publicProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ input }) => {
-      const realContracts = getRealContracts();
-      return realContracts.find((c) => c.id === input.id || c.samId === input.id) || null;
+      const contracts = await fetchContractsWithFailover();
+      return contracts.find((c) => c.id === input.id || c.samId === input.id) || null;
     }),
 
   /**
@@ -84,7 +85,7 @@ export const contractsRouter = router({
           userId: ctx.user.id,
           contractId: input.contractId,
           savedAt: new Date(),
-        });
+        } as any);
 
         return { success: true, message: "Contract saved" };
       } catch (error) {
@@ -131,7 +132,7 @@ export const contractsRouter = router({
 
       const realContracts = getRealContracts();
       return saved
-        .map((s) => realContracts.find((c) => c.id === s.contractId || c.samId === s.contractId))
+        .map((s: any) => realContracts.find((c: any) => c.id === s.contractId || c.samId === s.contractId))
         .filter(Boolean);
     } catch (error) {
       console.error("[Contracts] Error getting saved:", error);
