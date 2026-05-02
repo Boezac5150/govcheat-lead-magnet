@@ -4,6 +4,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, adminProcedure, router } from "./_core/trpc";
 import { insertSubscriber, getSubscriberCount, getAllSubscribers } from "./db";
 import { notifyOwner } from "./_core/notification";
+import { sendSignupConfirmation } from "./_core/emailService";
 import { stripeRouter } from "./routers/stripe";
 import { dashboardRouter } from "./routers/dashboard";
 import { notificationsRouter } from "./routers/notifications";
@@ -41,8 +42,13 @@ export const appRouter = router({
       .mutation(async ({ input }) => {
         const result = await insertSubscriber(input.email, input.source);
 
-        // Notify owner on new subscriber (fire-and-forget)
+        // Send confirmation email and notify owner on new subscriber (fire-and-forget)
         if (!result.alreadyExists) {
+          // Send welcome email
+          sendSignupConfirmation(input.email).catch((err) => {
+            console.error('[Subscriber] Failed to send confirmation email:', err);
+          });
+          // Notify owner
           notifyOwner({
             title: `New Subscriber: ${input.email}`,
             content: `A new lead just signed up for the GovCon Cheat Sheet.\n\nEmail: ${input.email}\nSource: ${input.source}\nTime: ${new Date().toISOString()}`,
