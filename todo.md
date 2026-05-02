@@ -103,8 +103,8 @@
 - [x] Create contract alerts table in database schema
 - [x] Add tRPC endpoint to create/manage contract alerts
 - [x] Build alert preferences UI on dashboard
-- [ ] Implement daily alert sync job
+- [ ] Implement daily alert sync job (DEFERRED - Phase 9)
 - [x] Send email alerts when new contracts match saved searches
-- [ ] Add unsubscribe link to alert emails
-- [ ] Write vitest tests for alert endpoints
-- [ ] Test end-to-end alert flow
+- [ ] Add unsubscribe link to alert emails (DEFERRED - Phase 9)
+- [x] Write vitest tests for alert endpoints
+- [ ] Test end-to-end alert flow (DEFERRED - Phase 9)
