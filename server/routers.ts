@@ -12,14 +12,12 @@ import { contractsRouter } from "./routers/contracts";
 import { bidAnalysisRouter } from "./routers/bidAnalysis";
 import { alertsRouter } from "./routers/alerts";
 import { bidsRouter } from "./routers/bids";
-import { samGovSyncRouter } from "./routers/samGovSync";
 import { z } from "zod";
 
 export const appRouter = router({
   system: systemRouter,
   stripe: stripeRouter,
   dashboard: dashboardRouter,
-  samGovSync: samGovSyncRouter,
   notifications: notificationsRouter,
   contracts: contractsRouter,
   bidAnalysis: bidAnalysisRouter,

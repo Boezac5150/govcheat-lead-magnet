@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,9 +22,8 @@ import {
 import { trpc } from "@/lib/trpc";
 import { useLocation } from "wouter";
 import { toast } from "sonner";
-import { ContractFilters, ContractFilterState } from "@/components/ContractFilters";
-import { useState, useEffect } from "react";
-interface ContractListFilters {
+
+interface ContractFilters {
   category?: string;
   minValue?: number;
   maxValue?: number;
@@ -43,8 +43,7 @@ export default function Contracts() {
   const { user, loading: authLoading } = useAuth();
   const [, setLocation] = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
-  const [filters, setFilters] = useState<ContractListFilters>({});
-  const [advancedFilters, setAdvancedFilters] = useState<ContractFilterState>({});
+  const [filters, setFilters] = useState<ContractFilters>({});
   const [showFilters, setShowFilters] = useState(false);
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
   const [expandedBidId, setExpandedBidId] = useState<string | null>(null);

@@ -12,7 +12,6 @@ import Contracts from "./pages/Contracts";
 import ContractDetail from "./pages/ContractDetail";
 import AlertPreferences from "./pages/AlertPreferences";
 import { MyGovCheat } from "./pages/MyGovCheat";
-import HowTo from "./pages/HowTo";
 
 function Router() {
   return (
@@ -22,7 +21,6 @@ function Router() {
       <Route path={"/contract/:id"} component={ContractDetail} />
       <Route path="/alerts" component={AlertPreferences} />
       <Route path="/my-govcheat" component={MyGovCheat} />
-      <Route path="/how-to" component={HowTo} />
       <Route path="/thank-you" component={ThankYou} />
       <Route path={"/dashboard"} component={Dashboard} />
       <Route path={"/admin"} component={Admin} />

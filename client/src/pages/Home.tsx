@@ -11,8 +11,6 @@ import { Button } from "@/components/ui/button";
 import { motion, useInView } from "framer-motion";
 import { trpc } from "@/lib/trpc";
 import { useLocation } from "wouter";
-import { useAuth } from "@/_core/hooks/useAuth";
-import AuthenticatedHome from "./AuthenticatedHome";
 import {
   Shield,
   Target,
@@ -112,16 +110,10 @@ function ContractCard({
 
 /* ─── Main Page ─── */
 export default function Home() {
-  const { user, isLoading } = useAuth();
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [, setLocation] = useLocation();
-
-  // If user is authenticated, show the authenticated homepage
-  if (!isLoading && user) {
-    return <AuthenticatedHome />;
-  }
 
   const subscribeMutation = trpc.subscriber.subscribe.useMutation({
     onSuccess: () => {
