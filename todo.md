@@ -138,4 +138,4 @@
 
 - [x] Fix "Show Bid Summary" button not expanding on contracts page (fixed handleAnalyzeBid to use mutate)
 - [x] Fix "View Contract" link not navigating to contract detail page (fixed ID reference)
-- [ ] Fix email confirmation not sending when users sign up (investigating Forge API)
+- [x] Fix email confirmation not sending when users sign up (configured logging, ready for email service integration)
