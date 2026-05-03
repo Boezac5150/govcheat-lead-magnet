@@ -113,15 +113,15 @@ function ContractCard({
 /* ─── Main Page ─── */
 export default function Home() {
   const { user, isLoading } = useAuth();
+  const [email, setEmail] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+  const [, setLocation] = useLocation();
 
   // If user is authenticated, show the authenticated homepage
   if (!isLoading && user) {
     return <AuthenticatedHome />;
   }
-  const [email, setEmail] = useState("");
-  const [submitted, setSubmitted] = useState(false);
-  const [errorMsg, setErrorMsg] = useState("");
-  const [, setLocation] = useLocation();
 
   const subscribeMutation = trpc.subscriber.subscribe.useMutation({
     onSuccess: () => {
