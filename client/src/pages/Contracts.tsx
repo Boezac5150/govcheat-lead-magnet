@@ -1,3 +1,4 @@
+import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -20,7 +21,7 @@ import {
 import { trpc } from "@/lib/trpc";
 import { useLocation } from "wouter";
 import { toast } from "sonner";
-import { useAuth } from "@/_core/hooks/useAuth";
+import { ContractFilters, ContractFilterState } from "@/components/ContractFilters";
 import { useState, useEffect } from "react";
 interface ContractListFilters {
   category?: string;
