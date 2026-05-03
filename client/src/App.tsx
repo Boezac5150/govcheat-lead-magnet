@@ -19,7 +19,7 @@ function Router() {
       <Route path={"/"} component={Home} />
       <Route path={"/contracts"} component={Contracts} />
       <Route path={"/contract/:id"} component={ContractDetail} />
-        <Route path="/alerts" component={AlertPreferences} />
+      <Route path="/alerts" component={AlertPreferences} />
       <Route path="/my-govcheat" component={MyGovCheat} />
       <Route path="/thank-you" component={ThankYou} />
       <Route path={"/dashboard"} component={Dashboard} />

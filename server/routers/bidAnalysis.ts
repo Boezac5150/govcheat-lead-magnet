@@ -28,7 +28,7 @@ export const bidAnalysisRouter = router({
         setAside: z.string().optional(),
       })
     )
-    .query(async ({ input }): Promise<BidAnalysis> => {
+    .mutation(async ({ input }): Promise<BidAnalysis> => {
       try {
         const prompt = `You are a government contracting expert. Analyze this contract opportunity and provide strategic bid advice.
 

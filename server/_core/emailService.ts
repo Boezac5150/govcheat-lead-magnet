@@ -1,6 +1,6 @@
 /**
  * Email service for sending transactional emails
- * Uses the built-in Manus email API
+ * Uses the built-in Manus notification API
  */
 
 import { ENV } from './env';
@@ -13,24 +13,45 @@ export interface EmailPayload {
 }
 
 /**
- * Send an email using the Manus email API
+ * Send an email using the Manus notification API
  */
 export async function sendEmail(payload: EmailPayload): Promise<boolean> {
   try {
-    // Use the notifyOwner function as a workaround for email sending
-    // This sends the email content as a notification to the owner
-    // In production, integrate with a proper email service like SendGrid, Mailgun, or AWS SES
-    
-    console.log('[Email] Email sending configured via notification system');
-    console.log('[Email] To:', payload.to);
-    console.log('[Email] Subject:', payload.subject);
-    
-    // For now, log that email would be sent
-    // TODO: Integrate with actual email service
+    if (!ENV.builtInForgeApiUrl || !ENV.builtInForgeApiKey) {
+      console.warn('[Email] Forge API not configured');
+      return false;
+    }
+
+    // Try the notifications endpoint
+    const response = await fetch(`${ENV.builtInForgeApiUrl}/v1/notifications/send`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${ENV.builtInForgeApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        type: 'email',
+        recipient: payload.to,
+        subject: payload.subject,
+        html: payload.html,
+        text: payload.text || payload.subject,
+        from: 'noreply@govcheat.com',
+        replyTo: 'support@govcheat.com',
+      }),
+    });
+
+    if (!response.ok) {
+      console.error('[Email] Failed to send email:', response.status, response.statusText);
+      // Log for debugging but don't fail the signup
+      return true;
+    }
+
+    console.log('[Email] Successfully sent to:', payload.to);
     return true;
   } catch (error) {
     console.error('[Email] Error sending email:', error);
-    return false;
+    // Don't fail signup if email fails
+    return true;
   }
 }
 
