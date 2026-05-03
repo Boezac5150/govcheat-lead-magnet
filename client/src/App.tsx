@@ -13,6 +13,7 @@ import ContractDetail from "./pages/ContractDetail";
 import AlertPreferences from "./pages/AlertPreferences";
 import { MyGovCheat } from "./pages/MyGovCheat";
 import HowTo from "./pages/HowTo";
+import HowToUse from "./pages/HowToUse";
 
 function Router() {
   return (
@@ -23,6 +24,7 @@ function Router() {
       <Route path="/alerts" component={AlertPreferences} />
       <Route path="/my-govcheat" component={MyGovCheat} />
       <Route path="/how-to" component={HowTo} />
+      <Route path="/how-to-use" component={HowToUse} />
       <Route path="/thank-you" component={ThankYou} />
       <Route path={"/dashboard"} component={Dashboard} />
       <Route path={"/admin"} component={Admin} />
