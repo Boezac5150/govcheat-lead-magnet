@@ -139,7 +139,7 @@ export default function Contracts() {
 
     setLoadingBidId(contractId);
     try {
-      const { data: analysis } = await trpc.bidAnalysis.analyze.useQuery({
+      const analysis = await trpc.bidAnalysis.analyze.mutate({
         title: contract.title,
         description: contract.description || contract.simplifiedDescription,
         agency: contract.agency,
@@ -157,6 +157,7 @@ export default function Contracts() {
         setExpandedBidId(contractId);
       }
     } catch (error) {
+      console.error("Bid analysis error:", error);
       toast.error("Failed to analyze bid");
     } finally {
       setLoadingBidId(null);
@@ -393,7 +394,7 @@ export default function Contracts() {
                         )}
                       </Button>
                       <Button
-                        onClick={() => setLocation(`/contract/${contract.samId}`)}
+                        onClick={() => setLocation(`/contract/${contractId}`)}
                         variant="outline"
                         className="border-green-500/30 text-green-400 hover:bg-green-500/10 flex items-center gap-2"
                         title="View full contract details and AI analysis"

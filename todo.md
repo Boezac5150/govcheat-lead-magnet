@@ -132,3 +132,10 @@
 - [ ] Write vitest tests for bid endpoints (DEFERRED)
 - [ ] Test end-to-end bid placement and tracking (DEFERRED)
 - [x] Deploy MyGovCheat dashboard live
+
+
+## CRITICAL BUGS TO FIX
+
+- [x] Fix "Show Bid Summary" button not expanding on contracts page (fixed handleAnalyzeBid to use mutate)
+- [x] Fix "View Contract" link not navigating to contract detail page (fixed ID reference)
+- [ ] Fix email confirmation not sending when users sign up (investigating Forge API)
