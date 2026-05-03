@@ -22,6 +22,19 @@ export default function HowToUse() {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
 
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-[#0A0E17] text-white flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-xl mb-4">Please sign in to view this page</p>
+          <Button onClick={() => setLocation("/")} className="bg-[#00FF88] text-[#0A0E17]">
+            Go to Home
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#0A0E17] text-white">
       {/* Header */}
