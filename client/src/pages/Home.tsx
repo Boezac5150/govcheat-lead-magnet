@@ -118,11 +118,7 @@ export default function Home() {
   const [errorMsg, setErrorMsg] = useState("");
   const [, setLocation] = useLocation();
 
-  // If user is authenticated, show the authenticated homepage
-  if (!isLoading && user) {
-    return <AuthenticatedHome />;
-  }
-
+  // MUST call all hooks before any early returns
   const subscribeMutation = trpc.subscriber.subscribe.useMutation({
     onSuccess: () => {
       setSubmitted(true);
@@ -136,6 +132,11 @@ export default function Home() {
       setErrorMsg(err.message || "Something went wrong. Please try again.");
     },
   });
+
+  // If user is authenticated, show the authenticated homepage
+  if (!isLoading && user) {
+    return <AuthenticatedHome />;
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
