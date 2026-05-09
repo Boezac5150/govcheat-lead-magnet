@@ -131,9 +131,9 @@ export default function Home() {
     onSuccess: () => {
       setSubmitted(true);
       setErrorMsg("");
-      // Redirect to contracts page after short delay
+      // Redirect to thank-you page to deliver the cheat sheet
       setTimeout(() => {
-        setLocation("/contracts");
+        setLocation("/thank-you");
       }, 1500);
     },
     onError: (err) => {

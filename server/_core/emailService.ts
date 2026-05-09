@@ -17,16 +17,16 @@ export interface EmailPayload {
  */
 export async function sendEmail(payload: EmailPayload): Promise<boolean> {
   try {
-    if (!ENV.builtInForgeApiUrl || !ENV.builtInForgeApiKey) {
+    if (!ENV.forgeApiUrl || !ENV.forgeApiKey) {
       console.warn('[Email] Forge API not configured');
       return false;
     }
 
     // Try the notifications endpoint
-    const response = await fetch(`${ENV.builtInForgeApiUrl}/v1/notifications/send`, {
+    const response = await fetch(`${ENV.forgeApiUrl}/v1/notifications/send`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${ENV.builtInForgeApiKey}`,
+        'Authorization': `Bearer ${ENV.forgeApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
