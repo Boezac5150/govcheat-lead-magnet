@@ -34,8 +34,18 @@ export async function checkSamGovHealth(): Promise<HealthCheckResult> {
       };
     }
 
+    const now = new Date();
+    const threeMonthsAgo = new Date();
+    threeMonthsAgo.setMonth(now.getMonth() - 3);
+    const formatDate = (date: Date) => {
+      const m = (date.getMonth() + 1).toString().padStart(2, '0');
+      const d = date.getDate().toString().padStart(2, '0');
+      const y = date.getFullYear();
+      return `${m}/${d}/${y}`;
+    };
+
     const response = await fetch(
-      `https://api.sam.gov/prod/opportunities/v1/search?api_key=${apiKey}&limit=1`,
+      `https://api.sam.gov/prod/opportunities/v2/search?api_key=${apiKey}&limit=1&postedFrom=${formatDate(threeMonthsAgo)}&postedTo=${formatDate(now)}`,
       { signal: AbortSignal.timeout(5000) }
     );
 
@@ -95,8 +105,18 @@ export async function fetchContractsWithFailover(): Promise<RealContract[]> {
     const apiKey = process.env.SAM_GOV_API_KEY;
     if (!apiKey) throw new Error("SAM_GOV_API_KEY not configured");
 
+    const now = new Date();
+    const threeMonthsAgo = new Date();
+    threeMonthsAgo.setMonth(now.getMonth() - 3);
+    const formatDate = (date: Date) => {
+      const m = (date.getMonth() + 1).toString().padStart(2, '0');
+      const d = date.getDate().toString().padStart(2, '0');
+      const y = date.getFullYear();
+      return `${m}/${d}/${y}`;
+    };
+
     const response = await fetch(
-      `https://api.sam.gov/prod/opportunities/v1/search?api_key=${apiKey}&limit=50`,
+      `https://api.sam.gov/prod/opportunities/v2/search?api_key=${apiKey}&limit=50&postedFrom=${formatDate(threeMonthsAgo)}&postedTo=${formatDate(now)}`,
       { signal: AbortSignal.timeout(10000) }
     );
 

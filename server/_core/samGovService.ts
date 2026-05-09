@@ -7,10 +7,10 @@ import { ENV } from './env';
 
 // Try multiple endpoints - SAM.gov API has been updated
 const ENDPOINTS = [
-  'https://api.sam.gov/prod/opportunities/v1/search',
-  'https://api.sam.gov/opportunities/v1/search',
   'https://api.sam.gov/prod/opportunities/v2/search',
   'https://api.sam.gov/opportunities/v2/search',
+  'https://api.sam.gov/prod/opportunities/v1/search',
+  'https://api.sam.gov/opportunities/v1/search',
 ];
 
 export interface SamGovOpportunity {
@@ -31,13 +31,17 @@ async function tryEndpoint(
   body: Record<string, any>
 ): Promise<any> {
   try {
-    const response = await fetch(endpoint, {
-      method: 'POST',
+    // For v2, we must use GET with query parameters as POST is not supported on all versions
+    const url = new URL(endpoint);
+    Object.entries(body).forEach(([key, value]) => {
+      url.searchParams.append(key, String(value));
+    });
+
+    const response = await fetch(url.toString(), {
+      method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
         'Accept': 'application/json',
       },
-      body: JSON.stringify(body),
     });
 
     if (response.ok) {
@@ -60,10 +64,23 @@ export async function searchSamGovContracts(
       return [];
     }
 
+    const now = new Date();
+    const threeMonthsAgo = new Date();
+    threeMonthsAgo.setMonth(now.getMonth() - 3);
+
+    const formatDate = (date: Date) => {
+      const m = (date.getMonth() + 1).toString().padStart(2, '0');
+      const d = date.getDate().toString().padStart(2, '0');
+      const y = date.getFullYear();
+      return `${m}/${d}/${y}`;
+    };
+
     const body = {
       api_key: ENV.samGovApiKey,
       limit,
       offset,
+      postedFrom: formatDate(threeMonthsAgo),
+      postedTo: formatDate(now),
       ...(keywords && { keyword: keywords }),
     };
 
