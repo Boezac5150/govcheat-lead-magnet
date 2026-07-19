@@ -42,6 +42,11 @@ async function startServer() {
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
   registerStorageProxy(app);
   registerOAuthRoutes(app);
+  
+  // Mount scheduled endpoints
+  const { handleSamGovSync } = await import("./samGovSyncScheduled");
+  app.post("/api/scheduled/samgov-sync", handleSamGovSync);
+  
   // tRPC API
   app.use(
     "/api/trpc",
