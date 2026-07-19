@@ -3,8 +3,9 @@ import { z } from "zod";
 import { getDb } from "../db";
 import { contractAlerts, alertHistory, contracts } from "../../drizzle/schema";
 import { eq, and, gte, lte } from "drizzle-orm";
-import { sendEmail } from "../_core/emailService";
+import { sendContractAlert, sendEmail } from "../_core/resendService";
 import { TRPCError } from "@trpc/server";
+import { users } from "../../drizzle/schema";
 
 export const alertsRouter = router({
   /**
@@ -210,11 +211,20 @@ export const alertsRouter = router({
         <p><a href="https://govcheat.com/contracts">View all contracts</a></p>
       `;
 
-      await sendEmail({
-        to: "owner@govcheat.com",
-        subject: `${filteredContracts.length} New Contracts Match Alert: ${alertData.name}`,
-        html: emailBody,
-      });
+      // Get user email from users table
+      const userRecords = await db
+        .select({ email: users.email })
+        .from(users)
+        .where(eq(users.id, alertData.userId));
+
+      if (userRecords[0]?.email) {
+        // Send alert email to user
+        await sendEmail({
+          to: userRecords[0].email,
+          subject: `${filteredContracts.length} New Contracts Match Alert: ${alertData.name}`,
+          html: emailBody,
+        });
+      }
 
       // Record in alert history
       for (const contract of filteredContracts) {

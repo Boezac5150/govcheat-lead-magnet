@@ -4,7 +4,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, adminProcedure, router } from "./_core/trpc";
 import { insertSubscriber, getSubscriberCount, getAllSubscribers } from "./db";
 import { notifyOwner } from "./_core/notification";
-import { sendSignupConfirmation } from "./_core/emailService";
+import { sendSignupConfirmation } from "./_core/resendService";
 import { pushLeadToGHL } from "./_core/ghlService";
 import { stripeRouter } from "./routers/stripe";
 import { dashboardRouter } from "./routers/dashboard";

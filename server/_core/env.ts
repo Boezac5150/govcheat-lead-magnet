@@ -8,6 +8,7 @@ export const ENV = {
   forgeApiUrl: process.env.BUILT_IN_FORGE_API_URL ?? "",
   forgeApiKey: process.env.BUILT_IN_FORGE_API_KEY ?? "",
   samGovApiKey: process.env.SAM_GOV_API_KEY ?? "",
+  resendApiKey: process.env.RESEND_API_KEY ?? "",
   // HighLevel CRM integration
   ghlApiKey: process.env.GHL_API_KEY ?? "",
   ghlLocationId: process.env.GHL_LOCATION_ID ?? "XwqBOfoCpwVip6rghwwx",
