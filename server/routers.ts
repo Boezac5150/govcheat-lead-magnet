@@ -5,6 +5,7 @@ import { publicProcedure, protectedProcedure, adminProcedure, router } from "./_
 import { insertSubscriber, getSubscriberCount, getAllSubscribers } from "./db";
 import { notifyOwner } from "./_core/notification";
 import { sendSignupConfirmation } from "./_core/emailService";
+import { pushLeadToGHL } from "./_core/ghlService";
 import { stripeRouter } from "./routers/stripe";
 import { dashboardRouter } from "./routers/dashboard";
 import { notificationsRouter } from "./routers/notifications";
@@ -46,9 +47,16 @@ export const appRouter = router({
       .mutation(async ({ input }) => {
         const result = await insertSubscriber(input.email, input.source);
 
-        // Send confirmation email and notify owner on new subscriber (fire-and-forget)
+        // Send confirmation email, push to HighLevel CRM, and notify owner (fire-and-forget)
         if (!result.alreadyExists) {
-          // Send welcome email
+          // Push lead to HighLevel CRM (upsert contact + pipeline opportunity + welcome email)
+          pushLeadToGHL({
+            email: input.email,
+            source: input.source,
+          }).catch((err) => {
+            console.error('[Subscriber] Failed to push lead to HighLevel:', err);
+          });
+          // Also send via legacy email service as backup
           sendSignupConfirmation(input.email).catch((err) => {
             console.error('[Subscriber] Failed to send confirmation email:', err);
           });

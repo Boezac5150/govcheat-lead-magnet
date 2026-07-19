@@ -30,11 +30,23 @@ import {
 /* ─── Animated Counter ─── */
 function AnimatedCounter({ end, suffix = "", prefix = "" }: { end: number; suffix?: string; prefix?: string }) {
   const [count, setCount] = useState(0);
+  const [hasAnimated, setHasAnimated] = useState(false);
   const ref = useRef<HTMLSpanElement>(null);
   const isInView = useInView(ref, { once: true });
 
   useEffect(() => {
-    if (!isInView) return;
+    // Trigger animation either when in view OR after 500ms as fallback
+    const shouldAnimate = isInView || hasAnimated;
+    
+    if (!shouldAnimate) {
+      const timeout = setTimeout(() => {
+        setHasAnimated(true);
+      }, 500);
+      return () => clearTimeout(timeout);
+    }
+
+    if (hasAnimated && count === end) return; // Already animated
+
     let start = 0;
     const duration = 2000;
     const increment = end / (duration / 16);
@@ -48,7 +60,7 @@ function AnimatedCounter({ end, suffix = "", prefix = "" }: { end: number; suffi
       }
     }, 16);
     return () => clearInterval(timer);
-  }, [isInView, end]);
+  }, [isInView, hasAnimated, end, count]);
 
   return (
     <span ref={ref} className="font-mono tabular-nums">
