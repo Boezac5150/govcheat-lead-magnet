@@ -21,7 +21,8 @@ export const bidsRouter = router({
     )
     .mutation(async ({ input, ctx }) => {
       try {
-        const db = getDb();
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
 
         const result = await db.insert(bids).values({
           userId: ctx.user.id,
@@ -34,7 +35,7 @@ export const bidsRouter = router({
           bidStatus: "active",
         } as any);
 
-        return { success: true, bidId: result.insertId };
+        return { success: true, bidId: (result as any).insertId };
       } catch (error) {
         console.error("[Bids] Error creating bid:", error);
         throw error;
@@ -54,7 +55,8 @@ export const bidsRouter = router({
     )
     .query(async ({ input, ctx }) => {
       try {
-        const db = getDb();
+        const db = await getDb();
+        if (!db) return [];
 
         let query = db.select().from(bids).where(eq(bids.userId, ctx.user.id));
 
@@ -80,7 +82,8 @@ export const bidsRouter = router({
     .input(z.object({ bidId: z.number() }))
     .query(async ({ input, ctx }) => {
       try {
-        const db = getDb();
+        const db = await getDb();
+        if (!db) return null;
 
         const bid = await db
           .select()
@@ -108,7 +111,8 @@ export const bidsRouter = router({
     )
     .mutation(async ({ input, ctx }) => {
       try {
-        const db = getDb();
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
 
         // Get current bid
         const bid = await db
@@ -157,7 +161,8 @@ export const bidsRouter = router({
     )
     .mutation(async ({ input, ctx }) => {
       try {
-        const db = getDb();
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
 
         await db
           .update(bids)
@@ -178,7 +183,8 @@ export const bidsRouter = router({
     .input(z.object({ bidId: z.number() }))
     .mutation(async ({ input, ctx }) => {
       try {
-        const db = getDb();
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
 
         await db
           .delete(bids)
@@ -196,20 +202,21 @@ export const bidsRouter = router({
    */
   getStats: protectedProcedure.query(async ({ ctx }) => {
     try {
-      const db = getDb();
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
 
       const userBids = await db.select().from(bids).where(eq(bids.userId, ctx.user.id));
 
       const stats = {
         totalBids: userBids.length,
-        activeBids: userBids.filter((b) => b.bidStatus === "active").length,
-        wonBids: userBids.filter((b) => b.bidStatus === "won").length,
-        lostBids: userBids.filter((b) => b.bidStatus === "lost").length,
-        workingOn: userBids.filter((b) => b.bidStatus === "working_on").length,
-        totalBidValue: userBids.reduce((sum, b) => sum + (b.bidAmount || 0), 0),
+        activeBids: userBids.filter((b: any) => b.bidStatus === "active").length,
+        wonBids: userBids.filter((b: any) => b.bidStatus === "won").length,
+        lostBids: userBids.filter((b: any) => b.bidStatus === "lost").length,
+        workingOn: userBids.filter((b: any) => b.bidStatus === "working_on").length,
+        totalBidValue: userBids.reduce((sum: number, b: any) => sum + (b.bidAmount || 0), 0),
         totalWonValue: userBids
-          .filter((b) => b.bidStatus === "won")
-          .reduce((sum, b) => sum + (b.bidAmount || 0), 0),
+          .filter((b: any) => b.bidStatus === "won")
+          .reduce((sum: number, b: any) => sum + (b.bidAmount || 0), 0),
       };
 
       return stats;

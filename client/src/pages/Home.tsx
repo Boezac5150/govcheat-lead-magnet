@@ -119,10 +119,10 @@ export default function Home() {
     onSuccess: () => {
       setSubmitted(true);
       setErrorMsg("");
-      // Redirect to contracts page after short delay
+      // Redirect to main GovCheat site after short delay
       setTimeout(() => {
-        setLocation("/contracts");
-      }, 1500);
+        window.location.href = "https://govcheat.com/contracts";
+      }, 2000);
     },
     onError: (err) => {
       setErrorMsg(err.message || "Something went wrong. Please try again.");

@@ -129,6 +129,8 @@ export default function Contracts() {
     }
   };
 
+    const bidAnalysisMutation = trpc.bidAnalysis.analyze.useMutation();
+
     const handleAnalyzeBid = async (contract: any) => {
     const contractId = contract.id?.toString() || contract.samId;
     
@@ -139,7 +141,7 @@ export default function Contracts() {
 
     setLoadingBidId(contractId);
     try {
-      const analysis = await trpc.bidAnalysis.analyze.mutate({
+      const analysis = await bidAnalysisMutation.mutateAsync({
         title: contract.title,
         description: contract.description || contract.simplifiedDescription,
         agency: contract.agency,

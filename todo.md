@@ -139,3 +139,14 @@
 - [x] Fix "Show Bid Summary" button not expanding on contracts page (fixed handleAnalyzeBid to use mutate)
 - [x] Fix "View Contract" link not navigating to contract detail page (fixed ID reference)
 - [x] Fix email confirmation not sending when users sign up (configured logging, ready for email service integration)
+
+
+## Phase 11 — Ebook Delivery & Post-Signup Redirect
+
+- [ ] Create GovCheat Cheat Sheet PDF ebook
+- [ ] Upload ebook to S3 storage
+- [ ] Add ebook attachment to signup confirmation email
+- [ ] Add post-signup redirect from leads.govcheat.com to govcheat.com
+- [ ] Test ebook delivery in email
+- [ ] Test redirect flow
+- [ ] Deploy ebook delivery system

@@ -17,16 +17,16 @@ export interface EmailPayload {
  */
 export async function sendEmail(payload: EmailPayload): Promise<boolean> {
   try {
-    if (!ENV.builtInForgeApiUrl || !ENV.builtInForgeApiKey) {
+    if (!ENV.forgeApiUrl || !ENV.forgeApiKey) {
       console.warn('[Email] Forge API not configured');
       return false;
     }
 
     // Try the notifications endpoint
-    const response = await fetch(`${ENV.builtInForgeApiUrl}/v1/notifications/send`, {
+    const response = await fetch(`${ENV.forgeApiUrl}/v1/notifications/send`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${ENV.builtInForgeApiKey}`,
+        'Authorization': `Bearer ${ENV.forgeApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -80,7 +80,10 @@ export async function sendSignupConfirmation(email: string): Promise<boolean> {
           <li>✓ AI-powered bid analysis and win probability scoring</li>
         </ul>
         <div style="text-align: center; margin: 30px 0;">
-          <a href="https://govcheat.com/contracts" style="background: #00FF88; color: #0A0E17; padding: 12px 40px; text-decoration: none; border-radius: 4px; font-weight: bold; display: inline-block;">
+          <a href="https://govcheatlm-rclhfn9a.manus.space/manus-storage/govcheat_cheatsheet_4ae045b5.pdf" style="background: #00FF88; color: #0A0E17; padding: 12px 40px; text-decoration: none; border-radius: 4px; font-weight: bold; display: inline-block; margin-right: 10px;">
+            Download Cheat Sheet
+          </a>
+          <a href="https://govcheat.com/contracts" style="background: #333; color: #00FF88; padding: 12px 40px; text-decoration: none; border-radius: 4px; font-weight: bold; display: inline-block; border: 2px solid #00FF88;">
             View Live Contracts
           </a>
         </div>

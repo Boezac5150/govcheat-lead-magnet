@@ -199,7 +199,7 @@ export const alertsRouter = router({
       const contractList = filteredContracts
         .map(
           (c) =>
-            `<li><strong>${c.title}</strong> - $${(c.value / 1000).toFixed(0)}K (${c.agency})</li>`
+            `<li><strong>${c.title}</strong> - $${(c.value ? (c.value / 1000).toFixed(0) : 'N/A')}K (${c.agency})</li>`
         )
         .join("");
 
