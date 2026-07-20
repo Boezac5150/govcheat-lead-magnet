@@ -41,8 +41,14 @@ export async function sendEmail(payload: EmailPayload): Promise<boolean> {
     });
 
     if (!response.ok) {
-      const error = await response.text();
-      console.error('[Resend] Failed to send email:', response.status, error);
+      const errorText = await response.text();
+      console.error("[Resend] Failed to send email:", response.status, errorText);
+      try {
+        const errorJson = JSON.parse(errorText);
+        console.error("[Resend] Error details:", errorJson);
+      } catch (jsonError) {
+        console.error("[Resend] Could not parse error response as JSON.");
+      }
       return false;
     }
 

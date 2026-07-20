@@ -56,7 +56,7 @@ export const appRouter = router({
           }).catch((err) => {
             console.error('[Subscriber] Failed to push lead to HighLevel:', err);
           });
-          // Also send via legacy email service as backup
+          console.log(`[Subscriber] Attempting to send confirmation email to: ${input.email}`);
           sendSignupConfirmation(input.email).catch((err) => {
             console.error('[Subscriber] Failed to send confirmation email:', err);
           });
