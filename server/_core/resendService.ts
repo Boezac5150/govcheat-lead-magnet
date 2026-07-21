@@ -31,12 +31,12 @@ export async function sendEmail(payload: EmailPayload): Promise<boolean> {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: payload.from || 'noreply@govcheat.com',
+        from: payload.from || 'boezac@gmail.com',
         to: payload.to,
         subject: payload.subject,
         html: payload.html,
         text: payload.text || payload.subject,
-        reply_to: payload.replyTo || 'support@govcheat.com',
+        reply_to: payload.replyTo || 'boezac@gmail.com',
       }),
     });
 
@@ -77,7 +77,7 @@ export async function sendSignupConfirmation(email: string): Promise<boolean> {
           You're now part of the fastest-growing community of government contractors winning contracts.
         </p>
         <p style="color: #666; line-height: 1.6;">
-          Your exclusive GovCon Cheat Sheet is ready. Inside you'll find:
+          Your exclusive GovCon Cheat Sheet is attached to this email. Inside you'll find:
         </p>
         <ul style="color: #666; line-height: 1.8;">
           <li>✓ The 10 easiest government contracts to win in 2026</li>
@@ -86,15 +86,21 @@ export async function sendSignupConfirmation(email: string): Promise<boolean> {
           <li>✓ AI-powered bid analysis and win probability scoring</li>
         </ul>
         <div style="text-align: center; margin: 30px 0;">
-          <a href="https://govcheatlm-rclhfn9a.manus.space/manus-storage/govcheat_cheatsheet_4ae045b5.pdf" style="background: #00FF88; color: #0A0E17; padding: 12px 40px; text-decoration: none; border-radius: 4px; font-weight: bold; display: inline-block; margin-right: 10px;">
-            Download Cheat Sheet
-          </a>
-          <a href="https://govcheat.com/contracts" style="background: #333; color: #00FF88; padding: 12px 40px; text-decoration: none; border-radius: 4px; font-weight: bold; display: inline-block; border: 2px solid #00FF88;">
-            View Live Contracts
+          <a href="https://govcheat.com/login" style="background: #00FF88; color: #0A0E17; padding: 12px 40px; text-decoration: none; border-radius: 4px; font-weight: bold; display: inline-block;">
+            Sign In to GovCheat
           </a>
         </div>
+        <p style="color: #666; line-height: 1.6; margin-top: 20px;">
+          Once you sign in, you'll have access to:
+        </p>
+        <ul style="color: #666; line-height: 1.8;">
+          <li>✓ Live government contracts updated daily from SAM.gov</li>
+          <li>✓ AI-powered bid analysis and win probability scoring</li>
+          <li>✓ Bid tracking and contract management</li>
+          <li>✓ Smart alerts for contracts matching your criteria</li>
+        </ul>
         <p style="color: #999; font-size: 12px; margin-top: 30px; border-top: 1px solid #ddd; padding-top: 20px;">
-          This is an automated message. Do not reply to this email. For support, visit govcheat.com
+          This is an automated message. Do not reply to this email. For support, contact boezac@gmail.com
         </p>
       </div>
     </div>

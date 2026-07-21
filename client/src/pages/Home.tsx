@@ -133,7 +133,7 @@ export default function Home() {
       setErrorMsg("");
       // Redirect to main GovCheat site after short delay
       setTimeout(() => {
-        window.location.href = "https://govcheat.com/contracts";
+        window.location.href = "https://govcheat.com/login";
       }, 2000);
     },
     onError: (err) => {
