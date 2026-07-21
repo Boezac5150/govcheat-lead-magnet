@@ -16,6 +16,10 @@ import LoginPage from "./pages/LoginPage";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Loader2 } from "lucide-react";
 
+// Note: Contracts and ContractDetail pages are now public
+// Users can browse without authentication
+// Authentication is required only for placing bids and saving contracts
+
 function Router() {
   const { isAuthenticated, loading } = useAuth();
 
@@ -35,22 +39,19 @@ function Router() {
       <Route path="/login">
         <LoginPage />
       </Route>
+      {/* Public Routes */}
+      <Route path="/contracts" component={Contracts} />
+      <Route path="/contract/:id" component={ContractDetail} />
       {/* Protected Routes */}
       {isAuthenticated ? (
         <>
           <Route path="/dashboard" component={Dashboard} />
-          <Route path="/contracts" component={Contracts} />
-          <Route path="/contract/:id" component={ContractDetail} />
           <Route path="/my-govcheat" component={MyGovCheat} />
           <Route path="/alerts" component={AlertPreferences} />
           <Route path="/admin" component={Admin} />
           <Route path="/thank-you" component={ThankYou} />
         </>
-      ) : (
-        <Route path="/:rest*">
-          <Redirect to="/login" />
-        </Route>
-      )}
+      ) : null}
       <Route path="/:rest*" component={NotFound} />
     </Switch>
   );
