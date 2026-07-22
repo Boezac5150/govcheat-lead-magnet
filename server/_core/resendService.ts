@@ -31,12 +31,12 @@ export async function sendEmail(payload: EmailPayload): Promise<boolean> {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: payload.from || 'boezac@gmail.com',
+        from: payload.from || 'onboarding@resend.dev',
         to: payload.to,
         subject: payload.subject,
         html: payload.html,
         text: payload.text || payload.subject,
-        reply_to: payload.replyTo || 'boezac@gmail.com',
+        reply_to: payload.replyTo || 'onboarding@resend.dev',
       }),
     });
 
