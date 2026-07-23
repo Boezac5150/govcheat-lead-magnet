@@ -339,7 +339,7 @@ export default function Contracts() {
                           </Badge>
                           {contract.value && (
                             <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/50">
-                              ${(contract.value / 1000).toFixed(0)}K
+                              ${contract.value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                             </Badge>
                           )}
                         </div>
