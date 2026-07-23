@@ -22,6 +22,16 @@ import { useLocation } from "wouter";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
+// Format currency values in text (e.g., "$1964K" -> "$1,964,000.00")
+const formatCurrencyInText = (text: string): string => {
+  if (!text) return text;
+  // Match patterns like "$1964K", "$2860K", "$1000K", etc.
+  return text.replace(/\$(\d+)K/g, (match, num) => {
+    const value = parseInt(num) * 1000;
+    return `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  });
+};
+
 interface BidAnalysisData {
   summary: string;
   winProbability: number;
@@ -236,7 +246,7 @@ export default function ContractDetail() {
             <Card className="bg-gray-900/50 border-green-500/20 p-6">
               <h2 className="text-xl font-bold text-white mb-4">What They Need</h2>
               <p className="text-gray-300 leading-relaxed mb-4">
-                {contract.simplifiedDescription || contract.description}
+                {formatCurrencyInText(contract.simplifiedDescription || contract.description)}
               </p>
               <div className="flex flex-wrap gap-2 mb-4">
                 {contract.setAside && (

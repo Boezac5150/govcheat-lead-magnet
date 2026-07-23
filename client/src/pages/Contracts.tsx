@@ -1,5 +1,15 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
+
+// Format currency values in text (e.g., "$1964K" -> "$1,964,000.00")
+const formatCurrencyInText = (text: string): string => {
+  if (!text) return text;
+  // Match patterns like "$1964K", "$2860K", "$1000K", etc.
+  return text.replace(/\$(\d+)K/g, (match, num) => {
+    const value = parseInt(num) * 1000;
+    return `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  });
+};
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -361,7 +371,7 @@ export default function Contracts() {
                     </div>
 
                     <p className="text-gray-300 mb-4 leading-relaxed">
-                      {contract.simplifiedDescription || contract.description}
+                      {formatCurrencyInText(contract.simplifiedDescription || contract.description)}
                     </p>
 
                     {contract.deadline && (
