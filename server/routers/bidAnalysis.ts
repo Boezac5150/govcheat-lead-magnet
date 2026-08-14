@@ -16,7 +16,7 @@ export const bidAnalysisRouter = router({
   /**
    * Analyze a contract and provide bid strategy
    */
-  analyze: publicProcedure
+  analyze: protectedProcedure
     .input(
       z.object({
         title: z.string(),

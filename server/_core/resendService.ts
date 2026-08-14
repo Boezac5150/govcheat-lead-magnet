@@ -5,6 +5,9 @@
 
 import { ENV } from './env';
 
+const APP_URL = process.env.APP_URL || 'https://govcheat.com';
+const FROM_EMAIL = process.env.FROM_EMAIL || 'GovCheat <info@govcheat.com>';
+
 export interface EmailPayload {
   to: string;
   subject: string;
@@ -31,12 +34,12 @@ export async function sendEmail(payload: EmailPayload): Promise<boolean> {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: payload.from || 'onboarding@resend.dev',
+        from: payload.from || FROM_EMAIL,
         to: payload.to,
         subject: payload.subject,
         html: payload.html,
         text: payload.text || payload.subject,
-        reply_to: payload.replyTo || 'onboarding@resend.dev',
+        reply_to: payload.replyTo || 'info@govcheat.com',
       }),
     });
 
@@ -86,8 +89,8 @@ export async function sendSignupConfirmation(email: string): Promise<boolean> {
           <li>✓ AI-powered bid analysis and win probability scoring</li>
         </ul>
         <div style="text-align: center; margin: 30px 0;">
-          <a href="https://govcheat.com/login" style="background: #00FF88; color: #0A0E17; padding: 12px 40px; text-decoration: none; border-radius: 4px; font-weight: bold; display: inline-block;">
-            Sign In to GovCheat
+          <a href="${APP_URL}/assets/GovCheat-Cheat-Sheet.pdf" style="background: #00FF88; color: #0A0E17; padding: 12px 40px; text-decoration: none; border-radius: 4px; font-weight: bold; display: inline-block;">
+            Download Your Cheat Sheet
           </a>
         </div>
         <p style="color: #666; line-height: 1.6; margin-top: 20px;">
@@ -100,7 +103,7 @@ export async function sendSignupConfirmation(email: string): Promise<boolean> {
           <li>✓ Smart alerts for contracts matching your criteria</li>
         </ul>
         <p style="color: #999; font-size: 12px; margin-top: 30px; border-top: 1px solid #ddd; padding-top: 20px;">
-          This is an automated message. Do not reply to this email. For support, contact boezac@gmail.com
+          Questions? Reply to this email or contact info@govcheat.com.
         </p>
       </div>
     </div>
@@ -110,7 +113,7 @@ export async function sendSignupConfirmation(email: string): Promise<boolean> {
     to: email,
     subject: '✓ Welcome to GovCheat - Your Cheat Sheet is Ready',
     html,
-    text: 'Welcome to GovCheat! Your exclusive GovCon Cheat Sheet is ready. Visit https://govcheat.com/contracts to view live opportunities.',
+    text: `Welcome to GovCheat! Download your cheat sheet at ${APP_URL}/assets/GovCheat-Cheat-Sheet.pdf and view live opportunities at ${APP_URL}/contracts.`,
   });
 }
 
