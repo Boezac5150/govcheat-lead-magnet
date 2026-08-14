@@ -7,9 +7,9 @@ import { ENV } from './env';
 
 // Try multiple endpoints - SAM.gov API has been updated
 const ENDPOINTS = [
-  'https://api.sam.gov/prod/opportunities/v2/search',
   'https://api.sam.gov/opportunities/v2/search',
-  'https://api.sam.gov/prod/opportunities/v1/search',
+  'https://api.sam.gov/opportunities/v2/search',
+  'https://api.sam.gov/opportunities/v1/search',
   'https://api.sam.gov/opportunities/v1/search',
 ];
 

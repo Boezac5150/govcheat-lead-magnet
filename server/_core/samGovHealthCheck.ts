@@ -45,7 +45,7 @@ export async function checkSamGovHealth(): Promise<HealthCheckResult> {
     };
 
     const response = await fetch(
-      `https://api.sam.gov/prod/opportunities/v2/search?api_key=${apiKey}&limit=1&postedFrom=${formatDate(threeMonthsAgo)}&postedTo=${formatDate(now)}`,
+      `https://api.sam.gov/opportunities/v2/search?api_key=${apiKey}&limit=1&postedFrom=${formatDate(threeMonthsAgo)}&postedTo=${formatDate(now)}`,
       { signal: AbortSignal.timeout(30000) }
     );
 
@@ -116,7 +116,7 @@ export async function fetchContractsWithFailover(): Promise<RealContract[]> {
     };
 
     const response = await fetch(
-      `https://api.sam.gov/prod/opportunities/v2/search?api_key=${apiKey}&limit=50&postedFrom=${formatDate(threeMonthsAgo)}&postedTo=${formatDate(now)}`,
+      `https://api.sam.gov/opportunities/v2/search?api_key=${apiKey}&limit=50&postedFrom=${formatDate(threeMonthsAgo)}&postedTo=${formatDate(now)}`,
       { signal: AbortSignal.timeout(30000) }
     );
 
