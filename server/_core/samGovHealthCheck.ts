@@ -131,22 +131,24 @@ export async function fetchContractsWithFailover(): Promise<RealContract[]> {
       throw new Error("No opportunities returned from SAM.gov");
     }
 
-    const samContracts: RealContract[] = opportunities.map((opp: any) => ({
-      id: opp.opportunityID || opp.id,
-      samId: opp.opportunityID,
+    const samContracts: RealContract[] = opportunities.map((opp: any) => {
+      const id = opp.noticeId || opp.opportunityID || opp.id;
+      return {
+      id,
+      samId: id,
       title: opp.title || "",
       description: opp.description || "",
       simplifiedDescription: opp.description || "",
-      agency: opp.organizationName || "",
-      value: parseFloat(opp.estimatedAmount || "0"),
-      deadline: new Date(opp.responseDeadline || opp.deadline),
-      contractType: opp.contractType || "Other",
-      simplifiedType: opp.contractType || "Other",
-      setAside: opp.setAside || "None",
-      url: `https://sam.gov/opp/${opp.opportunityID}`,
+      agency: opp.fullParentPathName || opp.organizationName || opp.department || "",
+      value: Number(opp.award?.amount ?? opp.estimatedAmount ?? 0),
+      deadline: new Date(opp.responseDeadLine || opp.responseDeadline || opp.deadline),
+      contractType: opp.type || opp.baseType || "Other",
+      simplifiedType: opp.type || opp.baseType || "Other",
+      setAside: opp.typeOfSetAsideDescription || opp.typeOfSetAside || opp.setAside || "None",
+      url: opp.uiLink || `https://sam.gov/opp/${id}/view`,
       naicsCode: opp.naicsCode || "",
       postedDate: new Date(opp.postedDate),
-    }));
+    };}).filter((contract: RealContract) => Boolean(contract.id));
 
     // Cache the live data
     samGovDataCache = samContracts;

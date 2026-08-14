@@ -5,13 +5,7 @@
 
 import { ENV } from './env';
 
-// Try multiple endpoints - SAM.gov API has been updated
-const ENDPOINTS = [
-  'https://api.sam.gov/opportunities/v2/search',
-  'https://api.sam.gov/opportunities/v2/search',
-  'https://api.sam.gov/opportunities/v1/search',
-  'https://api.sam.gov/opportunities/v1/search',
-];
+const SAM_GOV_ENDPOINT = 'https://api.sam.gov/opportunities/v2/search';
 
 export interface SamGovOpportunity {
   id: string;
@@ -53,6 +47,24 @@ async function tryEndpoint(
   return null;
 }
 
+export function mapSamGovOpportunity(opp: any): SamGovOpportunity {
+  const id = opp.noticeId || opp.opportunityID || opp.id || '';
+  const awardAmount = Number(opp.award?.amount ?? opp.estimatedAmount);
+
+  return {
+    id,
+    title: opp.title || opp.solicitationNumber || 'Untitled opportunity',
+    description: opp.description || opp.solicitationDescription || '',
+    agency: opp.fullParentPathName || opp.organizationName || opp.department || '',
+    contractType: opp.type || opp.baseType || 'Open Market',
+    value: Number.isFinite(awardAmount) ? awardAmount : undefined,
+    deadline: opp.responseDeadLine || opp.responseDeadline || opp.deadline,
+    naicsCode: opp.naicsCode,
+    setAside: opp.typeOfSetAsideDescription || opp.typeOfSetAside || opp.setAside,
+    url: opp.uiLink || (id ? `https://sam.gov/opp/${id}/view` : undefined),
+  };
+}
+
 export async function searchSamGovContracts(
   keywords?: string,
   limit: number = 100,
@@ -84,16 +96,7 @@ export async function searchSamGovContracts(
       ...(keywords && { keyword: keywords }),
     };
 
-    // Try each endpoint until one works
-    let data = null;
-    for (const endpoint of ENDPOINTS) {
-      console.log(`[SAM.gov] Trying endpoint: ${endpoint}`);
-      data = await tryEndpoint(endpoint, body);
-      if (data) {
-        console.log(`[SAM.gov] Successfully connected to ${endpoint}`);
-        break;
-      }
-    }
+    const data = await tryEndpoint(SAM_GOV_ENDPOINT, body);
 
     if (!data) {
       console.error('[SAM.gov] All endpoints failed');
@@ -101,22 +104,9 @@ export async function searchSamGovContracts(
     }
 
     // Transform SAM.gov response to our contract format
-    const opportunities = (data.opportunitiesData || data.opportunities || []).map((opp: any) => ({
-      id: opp.id || opp.noticeId || '',
-      title: opp.title || opp.solicitationNumber || '',
-      description: opp.description || opp.solicitationDescription || '',
-      agency: opp.agency || opp.organizationName || '',
-      contractType: opp.type_of_set_aside || opp.typeOfSetAside || 'Open Market',
-      value: opp.base_opportunities_amount 
-        ? parseInt(opp.base_opportunities_amount) 
-        : opp.estimatedAmount 
-        ? parseInt(opp.estimatedAmount)
-        : undefined,
-      deadline: opp.response_deadline_date || opp.responseDeadlineDate || opp.deadline,
-      naicsCode: opp.naics_code || opp.naicsCode,
-      setAside: opp.type_of_set_aside || opp.typeOfSetAside,
-      url: opp.listing_url || opp.listingUrl || opp.url,
-    }));
+    const opportunities = (data.opportunitiesData || data.opportunities || [])
+      .map(mapSamGovOpportunity)
+      .filter((opportunity: SamGovOpportunity) => Boolean(opportunity.id));
 
     return opportunities;
   } catch (error) {
@@ -135,29 +125,18 @@ export async function testSamGovConnection(): Promise<boolean> {
       return false;
     }
 
+    const now = new Date();
+    const yesterday = new Date(now);
+    yesterday.setDate(now.getDate() - 1);
+    const formatDate = (date: Date) =>
+      `${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')}/${date.getFullYear()}`;
     const body = {
       api_key: ENV.samGovApiKey,
       limit: 1,
+      postedFrom: formatDate(yesterday),
+      postedTo: formatDate(now),
     };
-
-    for (const endpoint of ENDPOINTS) {
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify(body),
-      });
-
-      if (response.ok) {
-        console.log(`[SAM.gov] Connection test successful on ${endpoint}`);
-        return true;
-      }
-    }
-
-    console.error('[SAM.gov] Connection test failed on all endpoints');
-    return false;
+    return Boolean(await tryEndpoint(SAM_GOV_ENDPOINT, body));
   } catch (error) {
     console.error('[SAM.gov] Connection test failed:', error);
     return false;
