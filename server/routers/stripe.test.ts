@@ -4,6 +4,8 @@ import type { TrpcContext } from "../_core/context";
 import type { User } from "../../drizzle/schema";
 import Stripe from "stripe";
 
+process.env.STRIPE_SECRET_KEY = "sk_test_govcheat";
+
 // Mock Stripe
 vi.mock("stripe", () => {
   const mockCheckoutSessions = {

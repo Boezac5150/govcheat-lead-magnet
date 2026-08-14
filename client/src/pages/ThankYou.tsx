@@ -30,7 +30,7 @@ import {
   X,
 } from "lucide-react";
 
-const PDF_URL = "/manus-storage/Ultimate_GovCon_Cheat_Sheet_2026_45abce47.pdf";
+const PDF_URL = "/assets/GovCheat-Cheat-Sheet.pdf";
 
 /* ─── Tier Definitions ─── */
 const tiers = [

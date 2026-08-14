@@ -2,7 +2,8 @@ import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, adminProcedure, router } from "./_core/trpc";
-import { insertSubscriber, getSubscriberCount, getAllSubscribers } from "./db";
+import { createPasswordUser, getSubscriberCount, getAllSubscribers, getUserByEmail, insertSubscriber, touchUserSignIn } from "./db";
+import { createSessionToken, hashPassword, verifyPassword } from "./_core/auth";
 import { notifyOwner } from "./_core/notification";
 import { sendSignupConfirmation } from "./_core/resendService";
 import { pushLeadToGHL } from "./_core/ghlService";
@@ -25,7 +26,42 @@ export const appRouter = router({
   alerts: alertsRouter,
   bids: bidsRouter,
   auth: router({
-    me: publicProcedure.query(opts => opts.ctx.user),
+    me: publicProcedure.query(opts => {
+      const user = opts.ctx.user;
+      if (!user) return null;
+      return { id: user.id, email: user.email, name: user.name, role: user.role };
+    }),
+    register: publicProcedure
+      .input(z.object({
+        name: z.string().trim().min(2).max(120),
+        email: z.string().email(),
+        password: z.string().min(10).max(200),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const existing = await getUserByEmail(input.email);
+        if (existing) throw new Error("An account already exists for this email");
+        const user = await createPasswordUser({
+          name: input.name,
+          email: input.email,
+          passwordHash: await hashPassword(input.password),
+        });
+        if (!user) throw new Error("Unable to create account");
+        const token = await createSessionToken(user.id);
+        ctx.res.cookie(COOKIE_NAME, token, { ...getSessionCookieOptions(ctx.req), maxAge: 30 * 24 * 60 * 60 * 1000 });
+        return { id: user.id, email: user.email, name: user.name, role: user.role };
+      }),
+    login: publicProcedure
+      .input(z.object({ email: z.string().email(), password: z.string().min(1).max(200) }))
+      .mutation(async ({ input, ctx }) => {
+        const user = await getUserByEmail(input.email);
+        if (!user?.passwordHash || !(await verifyPassword(input.password, user.passwordHash))) {
+          throw new Error("Invalid email or password");
+        }
+        await touchUserSignIn(user.id);
+        const token = await createSessionToken(user.id);
+        ctx.res.cookie(COOKIE_NAME, token, { ...getSessionCookieOptions(ctx.req), maxAge: 30 * 24 * 60 * 60 * 1000 });
+        return { id: user.id, email: user.email, name: user.name, role: user.role };
+      }),
     logout: publicProcedure.mutation(({ ctx }) => {
       const cookieOptions = getSessionCookieOptions(ctx.req);
       ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });

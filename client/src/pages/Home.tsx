@@ -172,7 +172,7 @@ export default function Home() {
         {/* Background image */}
         <div
           className="absolute inset-0 bg-cover bg-center opacity-40"
-          style={{ backgroundImage: "url('/manus-storage/hero_bg_aeffa26e.png')" }}
+          style={{ backgroundImage: "url('/assets/govcheat-background.png')" }}
         />
         {/* Scan line overlay */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -250,7 +250,7 @@ export default function Home() {
               <div className="animate-float relative">
                 <div className="absolute -inset-4 bg-[var(--color-govgreen)] opacity-10 blur-3xl rounded-full" />
                 <img
-                  src="/manus-storage/govcon_cheat_sheet_cover_960e7e7d.png"
+                  src="/assets/cheat-sheet-cover.png"
                   alt="The Ultimate GovCon Cheat Sheet"
                   className="relative w-72 sm:w-80 drop-shadow-2xl"
                 />
@@ -343,7 +343,7 @@ export default function Home() {
       {/* ═══ SOCIAL PROOF / WHY GOVCHEAT ═══ */}
       <section
         className="py-20 lg:py-28 relative"
-        style={{ backgroundImage: "url('/manus-storage/social_proof_bg_fe7da0ea.png')", backgroundSize: "cover", backgroundPosition: "center" }}
+        style={{ backgroundImage: "url('/assets/govcheat-background.png')", backgroundSize: "cover", backgroundPosition: "center" }}
       >
         <div className="absolute inset-0 bg-[oklch(0.09_0.01_250_/_0.85)]" />
         <div className="container relative z-10">

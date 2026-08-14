@@ -209,14 +209,9 @@ const normalizeToolChoice = (
   return toolChoice;
 };
 
-const resolveApiUrl = () =>
-  ENV.forgeApiUrl && ENV.forgeApiUrl.trim().length > 0
-    ? `${ENV.forgeApiUrl.replace(/\/$/, "")}/v1/chat/completions`
-    : "https://forge.manus.im/v1/chat/completions";
-
 const assertApiKey = () => {
-  if (!ENV.forgeApiKey) {
-    throw new Error("OPENAI_API_KEY is not configured");
+  if (!ENV.anthropicApiKey && !ENV.openAiApiKey) {
+    throw new Error("ANTHROPIC_API_KEY or OPENAI_API_KEY is required");
   }
 };
 
@@ -268,6 +263,10 @@ const normalizeResponseFormat = ({
 export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
   assertApiKey();
 
+  if (ENV.anthropicApiKey) {
+    return invokeAnthropic(params);
+  }
+
   const {
     messages,
     tools,
@@ -280,7 +279,7 @@ export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
   } = params;
 
   const payload: Record<string, unknown> = {
-    model: "gpt-4o",
+    model: process.env.OPENAI_MODEL || "gpt-4o-mini",
     messages: messages.map(normalizeMessage),
   };
 
@@ -309,11 +308,11 @@ export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
     payload.response_format = normalizedResponseFormat;
   }
 
-  const response = await fetch(resolveApiUrl(), {
+  const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: {
       "content-type": "application/json",
-      authorization: `Bearer ${ENV.forgeApiKey}`,
+      authorization: `Bearer ${ENV.openAiApiKey}`,
     },
     body: JSON.stringify(payload),
   });
@@ -326,4 +325,71 @@ export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
   }
 
   return (await response.json()) as InvokeResult;
+}
+
+async function invokeAnthropic(params: InvokeParams): Promise<InvokeResult> {
+  const system = params.messages
+    .filter(message => message.role === "system")
+    .map(message => stringifyContent(message.content))
+    .join("\n\n");
+  const messages = params.messages
+    .filter(message => message.role !== "system")
+    .map(message => ({
+      role: message.role === "assistant" ? "assistant" : "user",
+      content: stringifyContent(message.content),
+    }));
+
+  const response = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      "x-api-key": ENV.anthropicApiKey,
+      "anthropic-version": "2023-06-01",
+    },
+    body: JSON.stringify({
+      model: process.env.ANTHROPIC_MODEL || "claude-sonnet-4-5",
+      max_tokens: params.maxTokens || params.max_tokens || 4096,
+      system: system || undefined,
+      messages,
+    }),
+  });
+
+  if (!response.ok) {
+    const detail = await response.text();
+    throw new Error(`Anthropic request failed: ${response.status} ${detail}`);
+  }
+
+  const result = await response.json() as {
+    id: string;
+    model: string;
+    stop_reason: string | null;
+    content: Array<{ type: string; text?: string }>;
+    usage?: { input_tokens: number; output_tokens: number };
+  };
+  const content = result.content
+    .filter(part => part.type === "text")
+    .map(part => part.text || "")
+    .join("");
+
+  return {
+    id: result.id,
+    created: Math.floor(Date.now() / 1000),
+    model: result.model,
+    choices: [{
+      index: 0,
+      message: { role: "assistant", content },
+      finish_reason: result.stop_reason,
+    }],
+    usage: result.usage ? {
+      prompt_tokens: result.usage.input_tokens,
+      completion_tokens: result.usage.output_tokens,
+      total_tokens: result.usage.input_tokens + result.usage.output_tokens,
+    } : undefined,
+  };
+}
+
+function stringifyContent(content: MessageContent | MessageContent[]) {
+  return ensureArray(content)
+    .map(part => typeof part === "string" ? part : part.type === "text" ? part.text : JSON.stringify(part))
+    .join("\n");
 }

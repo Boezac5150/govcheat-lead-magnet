@@ -1,10 +1,6 @@
 import { Request, Response } from "express";
 import Stripe from "stripe";
-import { ENV } from "./env";
-import { upsertSubscription, insertPayment, updatePaymentStatus } from "../db";
-import { notifyOwner } from "./notification";
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "");
+import { upsertSubscription, updatePaymentStatus } from "../db";
 
 /**
  * Handle Stripe webhook events
@@ -19,8 +15,10 @@ export async function handleStripeWebhook(req: Request, res: Response) {
     return res.json({ verified: true });
   }
 
-  if (!process.env.STRIPE_WEBHOOK_SECRET) {
-    console.error("[Webhook] STRIPE_WEBHOOK_SECRET not configured");
+  const apiKey = process.env.STRIPE_SECRET_KEY;
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  if (!apiKey || !webhookSecret) {
+    console.error("[Webhook] Stripe secrets not configured");
     // Still return 200 with valid JSON
     return res.json({ verified: true });
   }
@@ -28,10 +26,11 @@ export async function handleStripeWebhook(req: Request, res: Response) {
   let event: Stripe.Event;
 
   try {
+    const stripe = new Stripe(apiKey);
     event = stripe.webhooks.constructEvent(
       req.body,
       sig,
-      process.env.STRIPE_WEBHOOK_SECRET
+      webhookSecret
     );
   } catch (error: any) {
     console.error("[Webhook] Signature verification failed:", error.message);

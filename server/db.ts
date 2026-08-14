@@ -89,6 +89,49 @@ export async function getUserByOpenId(openId: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
+export async function getUserByEmail(email: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const normalized = email.toLowerCase().trim();
+  const result = await db.select().from(users).where(eq(users.email, normalized)).limit(1);
+  return result[0];
+}
+
+export async function createPasswordUser(input: {
+  email: string;
+  name: string;
+  passwordHash: string;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const email = input.email.toLowerCase().trim();
+  const openId = `email:${Buffer.from(email).toString("base64url").slice(0, 58)}`;
+  await db.insert(users).values({
+    openId,
+    email,
+    name: input.name.trim(),
+    passwordHash: input.passwordHash,
+    loginMethod: "password",
+    lastSignedIn: new Date(),
+  });
+
+  return getUserByEmail(email);
+}
+
+export async function touchUserSignIn(userId: number) {
+  const db = await getDb();
+  if (!db) return;
+  await db.update(users).set({ lastSignedIn: new Date() }).where(eq(users.id, userId));
+}
+
+export async function getUserById(userId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+  return result[0];
+}
+
 /* ─── Subscriber helpers ─── */
 
 export async function insertSubscriber(email: string, source = "cheatsheet"): Promise<{ success: boolean; alreadyExists: boolean }> {

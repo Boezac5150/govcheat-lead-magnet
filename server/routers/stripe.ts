@@ -2,9 +2,11 @@ import { protectedProcedure, router } from "../_core/trpc";
 import { z } from "zod";
 import Stripe from "stripe";
 import { STRIPE_PRODUCTS, type TierKey } from "../products";
-import { ENV } from "../_core/env";
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "");
+function getStripe() {
+  const apiKey = process.env.STRIPE_SECRET_KEY;
+  if (!apiKey) throw new Error("Stripe is not configured");
+  return new Stripe(apiKey);
+}
 
 export const stripeRouter = router({
   /**
@@ -26,6 +28,7 @@ export const stripeRouter = router({
       }
 
       try {
+        const stripe = getStripe();
         const session = await stripe.checkout.sessions.create({
           payment_method_types: ["card"],
           mode: "subscription",
@@ -67,6 +70,7 @@ export const stripeRouter = router({
     .input(z.object({ sessionId: z.string() }))
     .query(async ({ input }) => {
       try {
+        const stripe = getStripe();
         const session = await stripe.checkout.sessions.retrieve(input.sessionId);
         return {
           id: session.id,
