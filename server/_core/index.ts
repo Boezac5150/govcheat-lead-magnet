@@ -41,6 +41,14 @@ async function startServer() {
   app.get("/health", (_req, res) => {
     res.status(200).json({ status: "ok", service: "govcheat" });
   });
+  app.get("/api/samgov/status", async (_req, res) => {
+    const { getDataSourceStatus, getHealthStatus } = await import("./samGovHealthCheck");
+    const status = await getDataSourceStatus();
+    res.status(status.isHealthy ? 200 : 503).json({
+      ...status,
+      detail: getHealthStatus()?.errorMessage ?? null,
+    });
+  });
   
   // Mount scheduled endpoints
   const { handleSamGovSync } = await import("./samGovSyncScheduled");
