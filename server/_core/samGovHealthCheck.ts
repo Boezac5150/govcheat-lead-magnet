@@ -17,6 +17,17 @@ let samGovDataCache: RealContract[] | null = null;
 let cacheTimestamp: Date | null = null;
 const CACHE_DURATION = 60 * 60 * 1000; // 1 hour
 
+function buildSamGovUrl(apiKey: string, limit: number, postedFrom: string, postedTo: string) {
+  const url = new URL("https://api.sam.gov/opportunities/v2/search");
+  url.search = new URLSearchParams({
+    api_key: apiKey,
+    limit: String(limit),
+    postedFrom,
+    postedTo,
+  }).toString();
+  return url;
+}
+
 /**
  * Check if SAM.gov API is healthy and responsive
  */
@@ -45,7 +56,7 @@ export async function checkSamGovHealth(): Promise<HealthCheckResult> {
     };
 
     const response = await fetch(
-      `https://api.sam.gov/opportunities/v2/search?api_key=${apiKey}&limit=1&postedFrom=${formatDate(threeMonthsAgo)}&postedTo=${formatDate(now)}`,
+      buildSamGovUrl(apiKey, 1, formatDate(threeMonthsAgo), formatDate(now)),
       { signal: AbortSignal.timeout(30000) }
     );
 
@@ -116,7 +127,7 @@ export async function fetchContractsWithFailover(): Promise<RealContract[]> {
     };
 
     const response = await fetch(
-      `https://api.sam.gov/opportunities/v2/search?api_key=${apiKey}&limit=50&postedFrom=${formatDate(threeMonthsAgo)}&postedTo=${formatDate(now)}`,
+      buildSamGovUrl(apiKey, 50, formatDate(threeMonthsAgo), formatDate(now)),
       { signal: AbortSignal.timeout(30000) }
     );
 
