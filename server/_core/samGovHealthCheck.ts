@@ -16,6 +16,10 @@ let lastHealthCheck: HealthCheckResult | null = null;
 let samGovDataCache: RealContract[] | null = null;
 let cacheTimestamp: Date | null = null;
 const CACHE_DURATION = 60 * 60 * 1000; // 1 hour
+const SAM_GOV_HEADERS = {
+  Accept: "application/json",
+  "User-Agent": "GovCheat/1.0 (info@govcheat.com)",
+};
 
 function buildSamGovUrl(apiKey: string, limit: number, postedFrom: string, postedTo: string) {
   const url = new URL("https://api.sam.gov/opportunities/v2/search");
@@ -57,7 +61,7 @@ export async function checkSamGovHealth(): Promise<HealthCheckResult> {
 
     const response = await fetch(
       buildSamGovUrl(apiKey, 1, formatDate(threeMonthsAgo), formatDate(now)),
-      { signal: AbortSignal.timeout(30000) }
+      { headers: SAM_GOV_HEADERS, signal: AbortSignal.timeout(30000) }
     );
 
     const responseTime = Date.now() - startTime;
@@ -128,7 +132,7 @@ export async function fetchContractsWithFailover(): Promise<RealContract[]> {
 
     const response = await fetch(
       buildSamGovUrl(apiKey, 50, formatDate(threeMonthsAgo), formatDate(now)),
-      { signal: AbortSignal.timeout(30000) }
+      { headers: SAM_GOV_HEADERS, signal: AbortSignal.timeout(30000) }
     );
 
     if (!response.ok) {
