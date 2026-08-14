@@ -35,6 +35,7 @@ async function tryEndpoint(
       method: 'GET',
       headers: {
         'Accept': 'application/json',
+        'User-Agent': 'GovCheat/1.0 (info@govcheat.com)',
       },
     });
 
