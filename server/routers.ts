@@ -6,7 +6,6 @@ import { createPasswordUser, getSubscriberCount, getAllSubscribers, getUserByEma
 import { createSessionToken, hashPassword, verifyPassword } from "./_core/auth";
 import { notifyOwner } from "./_core/notification";
 import { sendSignupConfirmation } from "./_core/resendService";
-import { pushLeadToGHL } from "./_core/ghlService";
 import { stripeRouter } from "./routers/stripe";
 import { dashboardRouter } from "./routers/dashboard";
 import { notificationsRouter } from "./routers/notifications";
@@ -83,20 +82,13 @@ export const appRouter = router({
       .mutation(async ({ input }) => {
         const result = await insertSubscriber(input.email, input.source);
 
-        // Send confirmation email, push to HighLevel CRM, and notify owner (fire-and-forget)
+        // Store the lead in GovCheat's own database, send the confirmation email,
+        // and notify the owner. No external CRM sync is used.
         if (!result.alreadyExists) {
-          // Push lead to HighLevel CRM (upsert contact + pipeline opportunity + welcome email)
-          pushLeadToGHL({
-            email: input.email,
-            source: input.source,
-          }).catch((err) => {
-            console.error('[Subscriber] Failed to push lead to HighLevel:', err);
-          });
           console.log(`[Subscriber] Attempting to send confirmation email to: ${input.email}`);
           sendSignupConfirmation(input.email).catch((err) => {
             console.error('[Subscriber] Failed to send confirmation email:', err);
           });
-          // Notify owner
           notifyOwner({
             title: `New Subscriber: ${input.email}`,
             content: `A new lead just signed up for the GovCon Cheat Sheet.\n\nEmail: ${input.email}\nSource: ${input.source}\nTime: ${new Date().toISOString()}`,
