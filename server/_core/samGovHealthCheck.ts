@@ -78,11 +78,19 @@ export async function checkSamGovHealth(): Promise<HealthCheckResult> {
 
       return lastHealthCheck;
     } else {
+      // SAM.gov empirically returns 404 for API keys it does not recognize,
+      // so surface that interpretation alongside the raw status.
+      const hint =
+        response.status === 404
+          ? ' (SAM.gov returns 404 for unrecognized API keys — key likely not provisioned for the Opportunities API)'
+          : response.status === 401 || response.status === 403
+            ? ' (API key rejected)'
+            : '';
       lastHealthCheck = {
         isHealthy: false,
         lastCheck: new Date(),
         responseTime,
-        errorMessage: `HTTP ${response.status}`,
+        errorMessage: `HTTP ${response.status}${hint}`,
       };
 
       return lastHealthCheck;
@@ -136,7 +144,23 @@ export async function fetchContractsWithFailover(): Promise<RealContract[]> {
     );
 
     if (!response.ok) {
-      throw new Error(`SAM.gov API returned ${response.status}`);
+      // Surface the real failure: status + body, with an interpretation.
+      // Empirically, SAM.gov returns 404 (not 401/403) for API keys it does
+      // not recognize, so a 404 here almost always means a bad/unprovisioned
+      // key rather than a wrong endpoint URL.
+      const bodySnippet = await response
+        .text()
+        .then((t) => t.slice(0, 500))
+        .catch(() => '<unreadable>');
+      const hint =
+        response.status === 404
+          ? ' (SAM.gov returns 404 for unrecognized API keys — the key is likely not provisioned for the Opportunities API; request one from the SAM.gov Account Details page)'
+          : response.status === 401 || response.status === 403
+            ? ' (API key rejected — request a fresh key from the SAM.gov Account Details page)'
+            : '';
+      throw new Error(
+        `SAM.gov API returned ${response.status}${hint}. Body: ${bodySnippet}`
+      );
     }
 
     const data = (await response.json()) as any;

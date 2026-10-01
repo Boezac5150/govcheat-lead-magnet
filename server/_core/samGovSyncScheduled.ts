@@ -74,11 +74,31 @@ export async function syncSamGovContracts() {
 }
 
 export function startDailySamGovSync() {
-  const run = () => syncSamGovContracts().catch(error => console.error('[SAM.gov Sync] Daily run failed:', error));
-  const firstRun = setTimeout(run, 30_000);
-  const dailyRun = setInterval(run, 24 * 60 * 60 * 1000);
+  const run = () =>
+    syncSamGovContracts().catch((error) =>
+      console.error('[SAM.gov Sync] Daily run failed:', error)
+    );
+
+  // Anchor the daily run to a fixed time (02:00 UTC) instead of "24h after
+  // startup", so redeploys don't silently shift the schedule and the expected
+  // run time is stable and visible in the logs.
+  const now = new Date();
+  const next = new Date(now);
+  next.setUTCHours(2, 0, 0, 0);
+  if (next.getTime() - now.getTime() < 60_000) {
+    next.setUTCDate(next.getUTCDate() + 1);
+  }
+  const delayMs = next.getTime() - now.getTime();
+  console.log(
+    `[SAM.gov Sync] Next daily sync scheduled for ${next.toISOString()} (in ${Math.round(delayMs / 60000)} min)`
+  );
+
+  const firstRun = setTimeout(() => {
+    run();
+    const dailyRun = setInterval(run, 24 * 60 * 60 * 1000);
+    dailyRun.unref();
+  }, delayMs);
   firstRun.unref();
-  dailyRun.unref();
 }
 
 /**

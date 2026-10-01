@@ -24,6 +24,11 @@ async function tryEndpoint(
   endpoint: string,
   body: Record<string, any>
 ): Promise<any> {
+  // Never log the key itself; used only to redact it from logged output.
+  const apiKey = body.api_key ? String(body.api_key) : '';
+  const redact = (text: string) =>
+    apiKey ? text.split(apiKey).join('<redacted>') : text;
+
   try {
     // For v2, we must use GET with query parameters as POST is not supported on all versions
     const url = new URL(endpoint);
@@ -36,14 +41,39 @@ async function tryEndpoint(
       headers: {
         'Accept': 'application/json',
         'User-Agent': 'GovCheat/1.0 (info@govcheat.com)',
+        // SAM.gov honors the key as a header as well as a query param;
+        // sending both avoids a transport quirk on either one breaking auth.
+        ...(apiKey ? { 'X-Api-Key': apiKey } : {}),
       },
     });
 
     if (response.ok) {
       return await response.json();
     }
+
+    // Don't swallow the failure: log status + body so the next outage is
+    // diagnosable from the deploy logs alone.
+    const responseBody = await response
+      .text()
+      .then((t) => redact(t.slice(0, 500)))
+      .catch(() => '<unreadable>');
+    console.error(
+      `[SAM.gov] Request failed: HTTP ${response.status} ${response.statusText} — body: ${responseBody}`
+    );
+    if (response.status === 401 || response.status === 403) {
+      console.error(
+        '[SAM.gov] The API key was rejected. Request a fresh key from the SAM.gov Account Details page and update SAM_GOV_API_KEY.'
+      );
+    } else if (response.status === 404) {
+      console.error(
+        '[SAM.gov] Got 404: SAM.gov returns 404 for API keys it does not recognize (not just for bad URLs). The key is probably not provisioned for the Opportunities API — request one from the SAM.gov Account Details page, not a generic api.data.gov signup.'
+      );
+    }
   } catch (error) {
-    // Try next endpoint
+    console.error(
+      '[SAM.gov] Request threw:',
+      error instanceof Error ? error.message : error
+    );
   }
   return null;
 }
