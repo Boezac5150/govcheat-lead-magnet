@@ -3,7 +3,45 @@
  * Monitors SAM.gov API availability and automatically switches to live data when stable
  */
 
-import { getRealContracts, type RealContract } from "./realDataService";
+import { type RealContract } from "./realDataService";
+import { getDb } from "../db";
+import { contracts } from "../../drizzle/schema";
+import { eq, desc, sql } from "drizzle-orm";
+
+/**
+ * Read the real synced SAM.gov contracts from the database.
+ * This is the fallback when the live SAM.gov API is unreachable — the nightly
+ * sync keeps this table populated with genuine opportunities, so users never
+ * see fabricated data.
+ */
+export async function getDbContracts(): Promise<RealContract[]> {
+  const db = await getDb();
+  if (!db) return [];
+  const rows = await db
+    .select()
+    .from(contracts)
+    .where(eq(contracts.isActive, true))
+    .orderBy(desc(contracts.createdAt))
+    .limit(500);
+  return rows.map(
+    (r): RealContract => ({
+      id: r.samId,
+      samId: r.samId,
+      title: r.title,
+      description: r.description,
+      simplifiedDescription: r.simplifiedDescription,
+      agency: r.agency,
+      value: r.value ?? 0,
+      deadline: r.deadline,
+      contractType: r.contractType,
+      simplifiedType: r.simplifiedType,
+      setAside: r.setAside ?? "None",
+      url: r.url ?? `https://sam.gov/opp/${r.samId}/view`,
+      naicsCode: r.naicsCode ?? "",
+      postedDate: r.createdAt,
+    })
+  );
+}
 
 interface HealthCheckResult {
   isHealthy: boolean;
@@ -197,12 +235,21 @@ export async function fetchContractsWithFailover(): Promise<RealContract[]> {
     return samContracts;
   } catch (error) {
     console.warn(
-      `⚠️ [SAM.gov] API unavailable, using realistic data fallback:`,
+      `⚠️ [SAM.gov] API unavailable, falling back to synced database contracts:`,
       error instanceof Error ? error.message : "Unknown error"
     );
 
-    // Fall back to realistic data
-    return getRealContracts();
+    // Fall back to the real contracts stored by the nightly sync — never
+    // fabricated data.
+    try {
+      return await getDbContracts();
+    } catch (dbError) {
+      console.error(
+        "[SAM.gov] Database fallback failed:",
+        dbError instanceof Error ? dbError.message : "Unknown error"
+      );
+      return [];
+    }
   }
 }
 
@@ -221,13 +268,41 @@ export async function getDataSourceStatus(): Promise<{
   isHealthy: boolean;
   lastCheck: Date | null;
   contractCount: number;
+  totalContracts: number;
 }> {
   const health = await checkSamGovHealth();
+
+  // When the live API is down, the count reflects real synced contracts in
+  // the database — never fabricated data.
+  let fallbackCount = 0;
+  if (!health.isHealthy) {
+    try {
+      fallbackCount = (await getDbContracts()).length;
+    } catch {
+      fallbackCount = 0;
+    }
+  }
+
+  // Total real contracts in the database (populated by the nightly sync).
+  let totalContracts = 0;
+  try {
+    const db = await getDb();
+    if (db) {
+      const rows = await db
+        .select({ n: sql<number>`count(*)` })
+        .from(contracts)
+        .where(eq(contracts.isActive, true));
+      totalContracts = Number(rows[0]?.n ?? 0);
+    }
+  } catch {
+    totalContracts = 0;
+  }
 
   return {
     source: health.isHealthy ? "sam.gov" : "fallback",
     isHealthy: health.isHealthy,
     lastCheck: health.lastCheck,
-    contractCount: health.isHealthy ? 50 : getRealContracts().length,
+    contractCount: health.isHealthy ? 50 : fallbackCount,
+    totalContracts,
   };
 }

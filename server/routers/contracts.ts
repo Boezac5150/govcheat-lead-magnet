@@ -2,9 +2,8 @@ import { z } from "zod";
 import { publicProcedure, protectedProcedure, router } from "../_core/trpc";
 import { getDb, getSavedContracts, saveContract } from "../db";
 import { contracts, savedContracts } from "../../drizzle/schema";
-import { eq, and, sql } from "drizzle-orm";
-import { fetchContractsWithFailover } from "../_core/samGovHealthCheck";
-import { getRealContracts } from "../_core/realDataService";
+import { eq, and, sql, desc } from "drizzle-orm";
+import { fetchContractsWithFailover, getDbContracts } from "../_core/samGovHealthCheck";
 
 export const contractsRouter = router({
   /**
@@ -118,9 +117,16 @@ export const contractsRouter = router({
   getSaved: protectedProcedure.query(async ({ ctx }) => {
     try {
       const saved = await getSavedContracts(ctx.user.id);
-      const realContracts = getRealContracts();
+      // Resolve saved contracts against real data (live API or synced DB) —
+      // never fabricated data.
+      const allContracts = await getDbContracts();
+      const byId = new Map<string, (typeof allContracts)[number]>();
+      for (const c of allContracts) {
+        byId.set(c.id, c);
+        byId.set(c.samId, c);
+      }
       return saved
-        .map((s) => realContracts.find((c: any) => c.id === s.contractId || c.samId === s.contractId))
+        .map((s) => byId.get(String(s.contractId)) ?? null)
         .filter(Boolean);
     } catch (error) {
       console.error("[Contracts] Error getting saved:", error);

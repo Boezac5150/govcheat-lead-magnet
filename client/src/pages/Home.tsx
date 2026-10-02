@@ -127,6 +127,19 @@ export default function Home() {
   const [errorMsg, setErrorMsg] = useState("");
   const [, setLocation] = useLocation();
 
+  // Real active-contract count from the server (synced SAM.gov data).
+  const [activeCount, setActiveCount] = useState<number | null>(null);
+  useEffect(() => {
+    fetch("/api/samgov/status")
+      .then((r) => r.json())
+      .then((s) => {
+        if (typeof s.totalContracts === "number" && s.totalContracts > 0) {
+          setActiveCount(s.totalContracts);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   const subscribeMutation = trpc.subscriber.subscribe.useMutation({
     onSuccess: () => {
       setSubmitted(true);
@@ -195,7 +208,7 @@ export default function Home() {
               >
                 <div className="inline-flex items-center gap-2 font-mono text-xs text-[var(--color-govgreen)] border border-[var(--color-govgreen)] px-3 py-1.5 mb-6 bg-[oklch(0.82_0.22_155_/_0.05)]">
                   <span className="w-2 h-2 bg-[var(--color-govgreen)] rounded-full animate-pulse" />
-                  LIVE INTEL — 15,145 ACTIVE CONTRACTS
+                  LIVE INTEL — {activeCount !== null ? `${activeCount.toLocaleString()} ACTIVE CONTRACTS` : "LOADING LIVE INTEL…"}
                 </div>
               </motion.div>
 
@@ -277,7 +290,7 @@ export default function Home() {
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
             {[
               { value: 183, suffix: "B", prefix: "$", label: "Awarded to Small Biz (FY2024)" },
-              { value: 15145, suffix: "+", prefix: "", label: "Active Contracts Right Now" },
+              { value: activeCount ?? 0, suffix: "+", prefix: "", label: "Active Contracts Right Now" },
               { value: 28, suffix: "%", prefix: "", label: "Of All Federal Dollars" },
               { value: 10, suffix: "", prefix: "", label: "Easy-Win Categories Inside" },
             ].map((stat, i) => (
